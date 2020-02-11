@@ -30,10 +30,10 @@ data "oci_identity_availability_domain" "ad" {
 }
 
 resource "oci_core_instance" "simple-vm" {
-
+  count               = "${var.instance_count}"
   availability_domain = (var.availability_domain_name != "" ? var.availability_domain_name : data.oci_identity_availability_domain.ad.name)
   compartment_id      = var.compartment_ocid
-  display_name        = var.vm_display_name
+  display_name        = "${var.vm_display_name}${count.index}"
   shape               = var.vm_compute_shape
 
   create_vnic_details {
@@ -57,14 +57,10 @@ resource "oci_core_instance" "simple-vm" {
 }
 
 output "instance_public_ip" {
-  value = oci_core_instance.simple-vm.public_ip
+  value = oci_core_instance.simple-vm.*.public_ip
 }
 
 output "instance_private_ip" {
-  value = oci_core_instance.simple-vm.private_ip
-}
-
-output "instance_https_url" {
-  value = "https://${oci_core_instance.simple-vm.public_ip}"
+  value = oci_core_instance.simple-vm.*.private_ip
 }
 

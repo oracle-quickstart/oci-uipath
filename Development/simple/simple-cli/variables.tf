@@ -28,9 +28,14 @@ variable "mp_listing_resource_id" {
 #  Compute Configuration   #
 ############################
 
+variable "instance_count" {
+  description = "Number of VMs"
+  default = 2
+}
+
 variable "vm_display_name" {
   description = "Instance Name"
-  default     = "simple"
+  default     = "TestRobot"
 }
 
 variable "vm_compute_shape" {

@@ -38,19 +38,12 @@ data "template_file" "uirobot_setup" {
     Set-Location -Path $temp
     Set-ExecutionPolicy Unrestricted -force
     Invoke-WebRequest -Uri $link -OutFile "$temp\$file"
-    & "$temp\$file" -orchestratorUrl "${var.orchestrator_url}" -Tennant "${var.orchestrator_tennant}" -orchAdmin "${var.orchestrator_admin}" -orchPassword "${var.orchestrator_adminpw}" -machineName "$machineName"  -adminUsername "$UserName" -machinePassword "$Password" -HostingType "Standard"  -credType "Default" -RobotType "${var.robot_type}" -addRobotsToExistingEnvs "${var.addRobotToExistingEnvs}"
+    & "$temp\$file" -orchestratorUrl "${var.orchestrator_url}" -Tennant "${var.orchestrator_tennant}" -orchAdmin "${var.orchestrator_admin}" -orchPassword "${var.orchestrator_adminpw}" -adminUsername "$UserName" -machinePassword "$Password" -HostingType "Standard"  -credType "Default" -RobotType "${var.robot_type}" -addRobotsToExistingEnvs "${var.addRobotToExistingEnvs}"
 
 </powershell>
 
 EOF
 }
-
-# data "oci_core_instance_credentials" "instance_credentials" {
-#  #   count     = "${var.instance_count}"
-#  # instance_id = "${element(oci_core_instance.uirobot_instance.*.id, count.index)}"
-#   instance_id = "${oci_core_instance.uirobot_instance.*.id}"
-# }
-
 
 data "template_cloudinit_config" "cloudinit_config" {
   gzip          = false

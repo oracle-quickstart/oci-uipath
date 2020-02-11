@@ -1,11 +1,11 @@
 variable "instance_username" {
   description = "Default username for OCI is opc"
-  default     = "opc"
+  default     = "uirobot"
 
 }
 variable "instance_password" {
   description = "Password for local username"
-  default     = "P@s5w0r4!"
+  default     = "1qazXSW@3edc"
 }
 
 ## Set Robot local account role : localadmin or localuser
