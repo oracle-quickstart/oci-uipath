@@ -1,0 +1,52 @@
+{
+    "builders": [
+        {
+            "type": "oracle-oci",
+            "user_ocid": "",
+            "tenancy_ocid": "",
+            "fingerprint": "",
+            "compartment_ocid": "",
+            "base_image_ocid": "ocid1.image.oc1.phx.aaaaaaaan57vn7nfbjtklcc2e46jzylum7d3jnb762erd26evl3xhnvoceya",
+            "subnet_ocid": "",
+            "availability_domain": "",
+            "region": "",
+            "shape": "VM.Standard2.4",
+            "image_name": "generalized-rdp",
+            "communicator": "winrm",
+            "winrm_username": "opc",
+            "winrm_password": "<your password here, should be the same password in changePw.ps1>",
+            "winrm_insecure": true,
+            "winrm_use_ssl": true,
+            "winrm_port": 5986,
+            "user_data_file": "scripts/changePw.ps1"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "scripts/Generalize.cmd",
+            "destination": "C:\\Windows\\Panther\\"
+        },
+        {
+            "type": "file",
+            "source": "scripts/Post-Generalize.ps1",
+            "destination": "C:\\Windows\\Panther\\"
+        },
+        {
+            "type": "file",
+            "source": "scripts/Specialize.cmd",
+            "destination": "C:\\Windows\\Panther\\"
+        },
+        {
+            "type": "file",
+            "source": "scripts/unattend.xml",
+            "destination": "C:\\Windows\\Panther\\"
+        },
+        {
+            "type": "windows-shell",
+            "inline": [
+                "cmd /C C:\\Windows\\Panther\\Generalize.cmd"
+            ]
+        }
+    ]
+}
