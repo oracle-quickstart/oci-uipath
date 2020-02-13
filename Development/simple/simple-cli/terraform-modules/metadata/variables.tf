@@ -1,6 +1,6 @@
 variable "instance_username" {
   description = "Default username for OCI is opc"
-  default     = "uirobot"
+  default     = "opc"
 
 }
 variable "instance_password" {

@@ -30,7 +30,7 @@ variable "mp_listing_resource_id" {
 
 variable "instance_count" {
   description = "Number of VMs"
-  default = 2
+  default = 1
 }
 
 variable "vm_display_name" {
