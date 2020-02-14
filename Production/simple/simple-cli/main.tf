@@ -57,10 +57,6 @@ resource "oci_core_instance" "simple-vm" {
     source_id   = var.mp_listing_resource_id
   }
 
-  metadata = {
-    ssh_authorized_keys = var.ssh_public_key
-  }
-
 
 }
 

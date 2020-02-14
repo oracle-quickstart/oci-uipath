@@ -30,7 +30,7 @@ data "oci_identity_availability_domain" "ad" {
 }
 
 resource "oci_core_instance" "simple-vm" {
-  count               = "${var.instance_count}"
+  count               = var.instance_count
   availability_domain = (var.availability_domain_name != "" ? var.availability_domain_name : data.oci_identity_availability_domain.ad.name)
   compartment_id      = var.compartment_ocid
   display_name        = "${var.vm_display_name}${count.index}"

@@ -8,3 +8,4 @@
 *.tfvars
 *.pem
 **/Packer/packerCMD
+*.code-workspace

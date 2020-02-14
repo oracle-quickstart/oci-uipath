@@ -1,11 +1,9 @@
 variable "instance_username" {
   description = "Default username for OCI is opc"
-  default     = "opc"
 
 }
 variable "instance_password" {
   description = "Password for local username"
-  default     = "1qazXSW@3edc"
 }
 
 ## Set Robot local account role : localadmin or localuser
@@ -18,22 +16,18 @@ variable "robot_local_account_role" {
 
 #orchestrator url
 variable "orchestrator_url" {
-  default = "https://robot2orch1910-2bftlnpvxvywa.azurewebsites.net/"
 }
 
 #orchestrator tennant
 variable "orchestrator_tennant" {
-  default = "default"
 }
 
 #orchestrator admin username
 variable "orchestrator_admin" {
-  default = "admin"
 }
 
 #orchestrator admin password
 variable "orchestrator_adminpw" {
-  default = "1qazXSW@3edc"
 }
 
 
@@ -43,7 +37,6 @@ variable "robot_type" {
   # "Attended",
   # "Nonproduction",
   # "Development"
-  default = "Unattended"
 }
 variable "addRobotToExistingEnvs" {
   description = "Add Robot to all existing environments"

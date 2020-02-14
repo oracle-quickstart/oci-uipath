@@ -1,0 +1,343 @@
+# Title shown in Application Information tab.
+title: Sample Marketplace Stack / ORM Application - BYOL
+# Sub Title shown in Application Information tab.
+description: This is a Sample Marketplace Stack / ORM Application - BYOL
+schemaVersion: 1.1.0
+version: "20190304"
+
+# URL of Logo Icon used on Application Information tab. Logo must be 130x130 pixels.
+# (Optional)
+logoUrl: https://cloudmarketplace.oracle.com/marketplace/content?contentId=1234
+
+# Used in Application Information tab to Hyperlink Title and Logo to the Marketplace 
+# Listing.
+# Also used to link to Listing Usage section for "View Instructions".
+# (Optional) If it is missing, Application Information uses the 
+# "marketplace-listing-id" tag for the same purpose.
+source:
+  type: marketplace
+  reference: 123456
+
+locale: "en"
+variableGroups:
+  - title: "Hidden Variable Group"
+    visible: false
+    variables:
+      - tenancy_ocid
+      - mp_listing_id
+      - mp_listing_resource_id
+      - mp_listing_resource_version
+      - addRobotToExistingEnvs
+
+groupings:
+  - title: "Basics"
+    variables:
+      - vm_display_name
+      - instance_username
+      - instance_password
+      - instance_count
+      - region
+      - compartment_ocid
+
+  - title: "Orchestrator Connection Info"
+    variables:
+      - orchestrator_url
+      - orchestrator_admin
+      - orchestrator_adminpw
+      - orchestrator_tennant
+      - robot_type
+
+  - title: "Virtual Machine Settings"
+    variables:
+      - vm_compute_shape
+      - availability_domain_name
+      - availability_domain_number
+      - network_strategy
+      - vcn_id
+      - vcn_display_name
+      - vcn_cidr_block
+      - vcn_dns_label 
+      - subnet_type
+      - subnet_span
+      - subnet_id
+      - subnet_display_name
+      - subnet_cidr_block
+      - subnet_dns_label
+
+variables:
+  # Hidden variables
+  tenancy_ocid:
+    type: string
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy
+    required: true
+  
+  mp_listing_id:
+    type: string    
+    required: false    
+    description: Marketplace Listing ID
+
+  mp_listing_resource_id:
+    type: oci:core:image:id
+    required: true
+    description: Marketplace Image OCID
+    dependsOn:
+      compartmentId: compartment_ocid
+
+  mp_listing_resource_version:
+    type: string
+    required: false
+    description: Marketplace Listing package version
+
+  addRobotToExistingEnvs:
+    type: string
+    required: true
+    default: "No"
+
+  #Basics variables
+  vm_display_name:
+    type: string
+    required: true
+    default: 
+    title: Instance Name
+    description: The name of the Instance
+
+  instance_username:
+    type: string
+    required: true
+    default:
+    title: Username
+    description: Admin username for the machine
+
+  instance_password:
+    type: password
+    required: true
+    title: Password
+    description: Username's password for the machine
+    
+  instance_count:
+    type: integer
+    required: true
+    title: Number of virtual machines with Robots to be created
+    description: Number of Robots to be created in existing Orchestrator.
+    minimum: 1
+
+  region:
+    type: oci:identity:region:name
+    title: Region
+    description: The region in which to create all resources
+    required: true
+
+  compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    title: Compartment
+    description: The compartment in which to create all resources
+
+  #Orchestrator Connection Info variables
+  orchestrator_url:
+    type: link
+    require: true
+    title: The URL of an existing and licensed Orchestrator
+    description: Orchestrator URL
+  
+  orchestrator_admin:
+    type: string
+    required: true
+    title: Orchestrator admin account
+    description: Orchestrator admin account with API rights
+  
+  orchestrator_adminpw:
+    type: string
+    required: true
+    title: Orchestrator admin's password
+    description: The admin's password of an existing and licensed Orchestrator
+  
+  orchestrator_tennant:
+    type: string
+    required: true
+    title: Orchestrator Tenant Name
+    description: Orchestrator Tenant Name
+    default: default
+
+  robot_type:
+    type: enum
+    require: true
+    enum:
+    - "Attended"
+    - "Unattended"
+    - "Development"
+    - "NonProduction"
+
+  #Virtual Machine Settings variables
+  availability_domain_name:
+    type: oci:identity:availabilitydomain:name
+    dependsOn:
+      compartmentId: compartment_ocid
+    required: true
+    title: Availability Domain
+    description: Availability Domain
+
+  availability_domain_number:
+    type: integer
+    dependsOn:
+      compartmentId: availability_domain_name
+    required: true    
+    description: Availability Domain Number
+
+  vm_compute_shape:
+    type: oci:core:instanceshape:name
+    default: VM.Standard2.2
+    title: Compute Shape
+    required: true
+    dependsOn:
+      compartmentId: compartment_ocid
+      imageId: mp_listing_resource_id
+      
+  network_strategy:
+    type: enum
+    title: Network Strategy
+    description: Create or use existing Network Stack (VCN and Subnet)
+    enum:
+    - "Create New VCN and Subnet"
+    - "Use Existing VCN and Subnet"
+    required: true
+
+  subnet_type:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy 
+        - Create New VCN and Subnet
+    type: enum
+    title: Subnet Type
+    description: Choose between private and public subnets
+    enum:
+    - "Private Subnet"
+    - "Public Subnet"
+    required: true
+
+  subnet_span:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy 
+        - Create New VCN and Subnet
+    type: enum
+    title: Subnet Span
+    description: Choose between regional and AD specific subnets
+    enum:
+    - "Regional Subnet"
+    - "AD Specific Subnet"
+    required: true
+
+  vcn_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy 
+        - Create New VCN and Subnet
+    type: string
+    required: true
+    title: Virtual Cloud Network (VCN)
+    description: The name of the new Virtual Cloud Network (VCN)
+
+  vcn_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - Use Existing VCN and Subnet
+    type: oci:core:vcn:id
+    dependsOn:
+      compartmentId: compartment_ocid 
+    required: true
+    title: Existing Network
+    description: An existing Virtual Cloud Network (VCN) in which to create the compute instances, network resources, and load balancers. If not specified, a new VCN is created.
+
+  vcn_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy 
+        - Create New VCN and Subnet
+    type: string
+    required: true
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    title: VCN CIDR BLOCK
+    description: The CIDR of the new Virtual Cloud Network (VCN). If you plan to peer this VCN with another VCN, the VCNs must not have overlapping CIDRs.
+
+  subnet_display_name:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy 
+        - Create New VCN and Subnet
+    type: string
+    required: true
+    title: Subnet
+    description: The name of the new Subnet
+
+  subnet_cidr_block:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy 
+        - Create New VCN and Subnet
+    type: string
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    required: true
+    title: Subnet CIDR
+    description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
+
+  subnet_id:
+    visible: #($network_strategy  == "Use Existing VCN and Subnet")
+      eq:
+        - network_strategy 
+        - Use Existing VCN and Subnet 
+    type: oci:core:subnet:id
+    dependsOn:
+      vcnId: vcn_id 
+      compartmentId: compartment_ocid 
+    required: true
+    title: Existing Subnet
+    description: An existing subnet to use for compute instances. This subnet must already be present in the chosen VCN.
+
+  vcn_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy 
+        - Create New VCN and Subnet
+    type: string
+    required: true
+    title: VCN DNS Label
+    description: VCN DNS Label. Only letters and numbers, starting with a letter. 15 characters max.    
+
+  subnet_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy 
+        - Create New VCN and Subnet
+    type: string
+    required: true
+    title: Subnet DNS Label
+    description: Subnet DNS Label. Only letters and numbers, starting with a letter. 15 characters max.    
+
+
+outputGroups:
+  - title: "Output"
+    outputs:
+      - instance_public_ip
+      - instance_id
+
+outputs:
+  application_url:
+    type: link
+    title: Go to Application VM URL
+    visible: false
+
+  instance_public_ip:
+    type: link
+    title: Public IP
+    visible: true
+  
+  instance_private_ip:
+    type: link
+    title: Private IP
+    visible: true
+  
+primaryOutputButton: application_url
+
