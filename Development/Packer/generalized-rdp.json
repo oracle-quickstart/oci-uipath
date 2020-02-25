@@ -12,7 +12,7 @@
             "availability_domain": "MCLg:US-ASHBURN-AD-1",
             "region": "us-ashburn-1",
             "shape": "VM.Standard.E2.1",
-            "image_name": "UiPath Robot OCI Image",
+            "image_name": "UiPath Robot OCI Images",
             "communicator": "winrm",
             "winrm_username": "opc",
             "winrm_password": "1qazXSW@3edc",
@@ -23,6 +23,17 @@
         }
     ],
     "provisioners": [
+        {
+            "type": "file",
+            "source": "scripts/Install-UiPathRobot.ps1",
+            "destination": "C:\\Windows\\Panther\\"
+        },
+        {
+            "type": "powershell",
+            "elevated_user": "opc",
+            "elevated_password": "{{.WinRMPassword}}",
+            "script": "scripts/Download-UiPathRobot.ps1"
+        },
         {
             "type": "file",
             "source": "scripts/Generalize.cmd",

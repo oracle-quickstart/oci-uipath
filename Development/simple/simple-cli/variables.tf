@@ -6,18 +6,15 @@
 variable "tenancy_ocid" {
 }
 
-variable "mp_listing_id"{
-}
+# variable "mp_listing_id"{
+# }
 
 variable "mp_listing_resource_id" {
-  default = "ocid1.image.oc1.iad.aaaaaaaamvqqg42veexxstidctjf4gw76dlbqxpnew5jwbm4lz4jghvtn47a"
+  default = "ocid1.image.oc1.iad.aaaaaaaarpliejzt7zjzgdp7tnkyl6pkfxu2bdpx6w2diy6x3vcc7736o6lq"
   description = "Marketplace - Image OCID"
 }
 
 variable "mp_listing_resource_version"{
-}
-
-variable "addRobotToExistingEnvs"{
 }
 
 
@@ -55,6 +52,7 @@ variable "instance_count" {
 }
 
 variable "region" {
+  type = string
 }
 
 variable "compartment_ocid" {
@@ -80,15 +78,19 @@ variable "orchestrator_tennant" {
 variable "robot_type" {
 }
 
+variable "robot_version"{
+}
+
+variable "addRobotToExistingEnvs"{
+}
+
 
 ############################
 #  Virtual Machine Settings   #
 ############################
 
 variable "vm_compute_shape" {
-  type = list(string)
   description = "Compute Shape"
-  default     = ["VM.Standard.E2.1.Micro","VM.Standard1.1","VM.Standard1.2","VM.Standard1.4","VM.Standard.B1.1","VM.Standard.B1.2","VM.Standard.B1.4","VM.Standard.E2.2","VM.Standard.E2.4"]
 }
 
 variable "availability_domain_name" {

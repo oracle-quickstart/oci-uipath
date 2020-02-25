@@ -19,10 +19,6 @@ module "default_network_sec_group" {
   vcn_cidr_block   = var.vcn_cidr_block
 }
 
-module "metadata" {
-  source = "./terraform-modules/metadata"
-
-}
 
 data "oci_identity_availability_domain" "ad" {
   compartment_id = var.tenancy_ocid
@@ -50,9 +46,24 @@ resource "oci_core_instance" "simple-vm" {
 
   metadata = {
    #user_data = "${base64encode(element(data.template_file.uirobot_setup.*.rendered, count.index))}"
-   user_data = "${module.metadata.data}"
+   user_data = "${data.template_cloudinit_config.cloudinit_config}"
   }
+}
 
+data "template_file" "uirobot_setup" {
+  #count ="${var.instance_count}"
+  template = "${base64encode(file(var.user_data_uirobot_setup))}"
+}
+
+data "template_cloudinit_config" "cloudinit_config" {
+  gzip          = false
+  base64_encode = true
+
+  part {
+    filename     = "cloudinit.ps1"
+    content_type = "text/x-shellscript"
+    content      = "${data.template_file.uirobot_setup.rendered}"
+  }
 
 }
 

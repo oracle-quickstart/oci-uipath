@@ -21,22 +21,20 @@ source:
 locale: "en"
 variableGroups:
   - title: "Hidden Variable Group"
-    visible: false
+    visible: true
     variables:
       - tenancy_ocid
       - mp_listing_id
       - mp_listing_resource_id
       - mp_listing_resource_version
-      - addRobotToExistingEnvs
+      - region
 
-groupings:
   - title: "Basics"
     variables:
       - vm_display_name
       - instance_username
       - instance_password
       - instance_count
-      - region
       - compartment_ocid
 
   - title: "Orchestrator Connection Info"
@@ -46,12 +44,13 @@ groupings:
       - orchestrator_adminpw
       - orchestrator_tennant
       - robot_type
+      - robot_version
+      - addRobotToExistingEnvs
 
   - title: "Virtual Machine Settings"
     variables:
       - vm_compute_shape
       - availability_domain_name
-      - availability_domain_number
       - network_strategy
       - vcn_id
       - vcn_display_name
@@ -169,6 +168,14 @@ variables:
     - "Development"
     - "NonProduction"
 
+  robot_version:
+    type: enum
+    require: true
+    enum:
+    - "19.10.4"
+    - "19.4.5"
+    - "18.4.7"
+
   #Virtual Machine Settings variables
   availability_domain_name:
     type: oci:identity:availabilitydomain:name
@@ -178,16 +185,8 @@ variables:
     title: Availability Domain
     description: Availability Domain
 
-  availability_domain_number:
-    type: integer
-    dependsOn:
-      compartmentId: availability_domain_name
-    required: true    
-    description: Availability Domain Number
-
   vm_compute_shape:
     type: oci:core:instanceshape:name
-    default: VM.Standard2.2
     title: Compute Shape
     required: true
     dependsOn:
