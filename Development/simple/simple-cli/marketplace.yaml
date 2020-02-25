@@ -62,6 +62,8 @@ variableGroups:
       - subnet_display_name
       - subnet_cidr_block
       - subnet_dns_label
+      - nsg_display_name
+      - nsg_whitelist_ip
 
 variables:
   # Hidden variables
@@ -313,7 +315,22 @@ variables:
     type: string
     required: true
     title: Subnet DNS Label
-    description: Subnet DNS Label. Only letters and numbers, starting with a letter. 15 characters max.    
+    description: Subnet DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
+
+  nsg_display_name:
+    type: string
+    required: true
+    default: my-network-security-group
+    title: Network Security Group
+    description: The name of the Network Security Group
+
+  nsg_whitelist_ip:
+    type: string
+    required: true
+    default: 0.0.0.0/0
+    title: Network Security Groups - Whitelisted IP
+    description: "Ingress connection to VM whitelisted from IP (range). Enter 0.0.0.0/0 or <your IP>/32"
+
 
 
 outputGroups:

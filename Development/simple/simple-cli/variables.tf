@@ -146,3 +146,11 @@ variable "subnet_cidr_block" {
 variable "subnet_dns_label" {
   description = "Subnet DNS Label"
 }
+
+variable "nsg_display_name"{
+  default = ""
+}
+
+variable "nsg_whitelist_ip" {
+  default = ""
+}

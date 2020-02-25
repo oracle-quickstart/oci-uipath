@@ -52,7 +52,7 @@ resource "oci_core_instance" "simple-vm" {
 
 data "template_file" "uirobot_setup" {
   #count ="${var.instance_count}"
-  template = "${base64encode(file(var.user_data_uirobot_setup))}"
+  template = base64encode(file("./user_data_uirobot_setup.txt"))
 }
 
 data "template_cloudinit_config" "cloudinit_config" {

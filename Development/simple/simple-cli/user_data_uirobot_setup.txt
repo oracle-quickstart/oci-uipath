@@ -1,4 +1,4 @@
-#ps1
+#ps1_sysnative
     $UserName="${var.instance_username}"
     $Password="${var.instance_password}"
     $machineName =  "$Env:COMPUTERNAME"
