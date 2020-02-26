@@ -10,3 +10,4 @@
 **/Packer/packerCMD
 *.code-workspace
 *.DS_Store
+*scratch*
