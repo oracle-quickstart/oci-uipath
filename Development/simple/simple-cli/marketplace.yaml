@@ -9,10 +9,10 @@ version: "20190304"
 # (Optional)
 logoUrl: https://cloudmarketplace.oracle.com/marketplace/content?contentId=1234
 
-# Used in Application Information tab to Hyperlink Title and Logo to the Marketplace 
+# Used in Application Information tab to Hyperlink Title and Logo to the Marketplace
 # Listing.
 # Also used to link to Listing Usage section for "View Instructions".
-# (Optional) If it is missing, Application Information uses the 
+# (Optional) If it is missing, Application Information uses the
 # "marketplace-listing-id" tag for the same purpose.
 source:
   type: marketplace
@@ -28,6 +28,7 @@ variableGroups:
       - mp_listing_resource_id
       - mp_listing_resource_version
       - region
+      - availability_domain_number
 
   - title: "Basics"
     variables:
@@ -55,7 +56,7 @@ variableGroups:
       - vcn_id
       - vcn_display_name
       - vcn_cidr_block
-      - vcn_dns_label 
+      - vcn_dns_label
       - subnet_type
       - subnet_span
       - subnet_id
@@ -72,10 +73,10 @@ variables:
     title: Tenancy ID
     description: The Oracle Cloud Identifier (OCID) for your tenancy
     required: true
-  
+
   mp_listing_id:
-    type: string    
-    required: false    
+    type: string
+    required: false
     description: Marketplace Listing ID
 
   mp_listing_resource_id:
@@ -99,7 +100,7 @@ variables:
   vm_display_name:
     type: string
     required: true
-    default: 
+    default:
     title: Instance Name
     description: The name of the Instance
 
@@ -115,7 +116,7 @@ variables:
     required: true
     title: Password
     description: Username's password for the machine
-    
+
   instance_count:
     type: integer
     required: true
@@ -141,19 +142,19 @@ variables:
     require: true
     title: The URL of an existing and licensed Orchestrator
     description: Orchestrator URL
-  
+
   orchestrator_admin:
     type: string
     required: true
     title: Orchestrator admin account
     description: Orchestrator admin account with API rights
-  
+
   orchestrator_adminpw:
     type: string
     required: true
     title: Orchestrator admin's password
     description: The admin's password of an existing and licensed Orchestrator
-  
+
   orchestrator_tennant:
     type: string
     required: true
@@ -193,8 +194,8 @@ variables:
     required: true
     dependsOn:
       compartmentId: compartment_ocid
-      imageId: mp_listing_resource_id
-      
+      #imageId: mp_listing_resource_id
+
   network_strategy:
     type: enum
     title: Network Strategy
@@ -207,7 +208,7 @@ variables:
   subnet_type:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
       eq:
-        - network_strategy 
+        - network_strategy
         - Create New VCN and Subnet
     type: enum
     title: Subnet Type
@@ -220,7 +221,7 @@ variables:
   subnet_span:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
       eq:
-        - network_strategy 
+        - network_strategy
         - Create New VCN and Subnet
     type: enum
     title: Subnet Span
@@ -233,7 +234,7 @@ variables:
   vcn_display_name:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
       eq:
-        - network_strategy 
+        - network_strategy
         - Create New VCN and Subnet
     type: string
     required: true
@@ -243,11 +244,11 @@ variables:
   vcn_id:
     visible: #($network_strategy  == "Use Existing VCN and Subnet")
       eq:
-        - network_strategy 
+        - network_strategy
         - Use Existing VCN and Subnet
     type: oci:core:vcn:id
     dependsOn:
-      compartmentId: compartment_ocid 
+      compartmentId: compartment_ocid
     required: true
     title: Existing Network
     description: An existing Virtual Cloud Network (VCN) in which to create the compute instances, network resources, and load balancers. If not specified, a new VCN is created.
@@ -255,7 +256,7 @@ variables:
   vcn_cidr_block:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
       eq:
-        - network_strategy 
+        - network_strategy
         - Create New VCN and Subnet
     type: string
     required: true
@@ -266,7 +267,7 @@ variables:
   subnet_display_name:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
       eq:
-        - network_strategy 
+        - network_strategy
         - Create New VCN and Subnet
     type: string
     required: true
@@ -276,7 +277,7 @@ variables:
   subnet_cidr_block:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
       eq:
-        - network_strategy 
+        - network_strategy
         - Create New VCN and Subnet
     type: string
     pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
@@ -287,12 +288,12 @@ variables:
   subnet_id:
     visible: #($network_strategy  == "Use Existing VCN and Subnet")
       eq:
-        - network_strategy 
-        - Use Existing VCN and Subnet 
+        - network_strategy
+        - Use Existing VCN and Subnet
     type: oci:core:subnet:id
     dependsOn:
-      vcnId: vcn_id 
-      compartmentId: compartment_ocid 
+      vcnId: vcn_id
+      compartmentId: compartment_ocid
     required: true
     title: Existing Subnet
     description: An existing subnet to use for compute instances. This subnet must already be present in the chosen VCN.
@@ -300,17 +301,17 @@ variables:
   vcn_dns_label:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
       eq:
-        - network_strategy 
+        - network_strategy
         - Create New VCN and Subnet
     type: string
     required: true
     title: VCN DNS Label
-    description: VCN DNS Label. Only letters and numbers, starting with a letter. 15 characters max.    
+    description: VCN DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
 
   subnet_dns_label:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
       eq:
-        - network_strategy 
+        - network_strategy
         - Create New VCN and Subnet
     type: string
     required: true
@@ -349,11 +350,10 @@ outputs:
     type: link
     title: Public IP
     visible: true
-  
+
   instance_private_ip:
     type: link
     title: Private IP
     visible: true
-  
-primaryOutputButton: application_url
 
+primaryOutputButton: application_url

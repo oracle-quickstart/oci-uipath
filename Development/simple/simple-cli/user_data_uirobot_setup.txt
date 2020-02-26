@@ -1,13 +1,13 @@
 #ps1_sysnative
-    $UserName="${var.instance_username}"
-    $Password="${var.instance_password}"
+    $UserName="${instance_username}"
+    $Password="${instance_password}"
     $machineName =  "$Env:COMPUTERNAME"
     $temp = "C:\scripts"
     $link = "https://raw.githubusercontent.com/UiPath/Infrastructure/master/Setup/Install-UiRobot.ps1"
     $file = "Install-UiRobot.ps1"
 
-    # create Robot local user 
-    $robotRole = "${var.robot_local_account_role}"
+    # create Robot local user
+    $robotRole = "${robot_local_account_role}"
     if($robotRole -eq "localuser") {
     $localRobotRole = "Remote Desktop Users"
     } else { $localRobotRole = "Administrators" }
@@ -35,4 +35,4 @@
     Set-Location -Path $temp
     Set-ExecutionPolicy Unrestricted -force
     Invoke-WebRequest -Uri $link -OutFile "$temp\$file"
-    & "$temp\$file" -orchestratorUrl "${var.orchestrator_url}" -Tennant "${var.orchestrator_tennant}" -orchAdmin "${var.orchestrator_admin}" -orchPassword "${var.orchestrator_adminpw}" -adminUsername "$UserName" -machinePassword "$Password" -HostingType "Standard"  -credType "Default" -RobotType "${var.robot_type}" -RobotVersion "${var.robot_version}" -addRobotsToExistingEnvs "${var.addRobotToExistingEnvs}"
+    & "$temp\$file" -orchestratorUrl "${orchestrator_url}" -Tennant "${orchestrator_tennant}" -orchAdmin "${orchestrator_admin}" -orchPassword "${orchestrator_adminpw}" -adminUsername "$UserName" -machinePassword "$Password" -HostingType "Standard"  -credType "Default" -RobotType "${robot_type}" -RobotVersion "${robot_version}" -addRobotsToExistingEnvs "${addRobotToExistingEnvs}"

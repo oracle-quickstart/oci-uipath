@@ -1,4 +1,4 @@
-## Allow Ingress HTTPS from 
+## Allow Ingress HTTPS from
 module "default_vcn_plus_subnet" {
   source              = "./terraform-modules/vcn-plus-subnet-default"
   compartment_ocid    = var.compartment_ocid
@@ -33,11 +33,11 @@ resource "oci_core_instance" "simple-vm" {
   shape               = var.vm_compute_shape
 
   create_vnic_details {
-  subnet_id        = module.default_vcn_plus_subnet.subnet_id
-  display_name     = var.vm_display_name
-  assign_public_ip = true
-  nsg_ids          = [module.default_network_sec_group.nsg_id]
-  } 
+    subnet_id        = module.default_vcn_plus_subnet.subnet_id
+    display_name     = var.vm_display_name
+    assign_public_ip = true
+    nsg_ids          = [module.default_network_sec_group.nsg_id]
+  }
 
   source_details {
     source_type = "image"
@@ -45,14 +45,26 @@ resource "oci_core_instance" "simple-vm" {
   }
 
   metadata = {
-   #user_data = "${base64encode(element(data.template_file.uirobot_setup.*.rendered, count.index))}"
-   user_data = "${data.template_cloudinit_config.cloudinit_config}"
+    user_data = data.template_cloudinit_config.cloudinit_config.rendered
   }
 }
 
 data "template_file" "uirobot_setup" {
   #count ="${var.instance_count}"
-  template = base64encode(file("./user_data_uirobot_setup.txt"))
+  template = file("./user_data_uirobot_setup.txt")
+  vars = {
+    instance_username  = var.instance_username
+    instance_password = var.instance_password
+    robot_local_account_role = var.instance_password
+    orchestrator_url = var.orchestrator_url
+    orchestrator_tennant = var.orchestrator_tennant
+    orchestrator_admin = var.orchestrator_admin
+    orchestrator_adminpw = var.orchestrator_adminpw
+    robot_type = var.robot_type
+    robot_version = var.robot_version
+    addRobotToExistingEnvs = var.addRobotToExistingEnvs
+
+  }
 }
 
 data "template_cloudinit_config" "cloudinit_config" {
@@ -62,7 +74,7 @@ data "template_cloudinit_config" "cloudinit_config" {
   part {
     filename     = "cloudinit.ps1"
     content_type = "text/x-shellscript"
-    content      = "${data.template_file.uirobot_setup.rendered}"
+    content      = data.template_file.uirobot_setup.rendered
   }
 
 }
@@ -74,4 +86,3 @@ output "instance_public_ip" {
 output "instance_private_ip" {
   value = oci_core_instance.simple-vm.*.private_ip
 }
-

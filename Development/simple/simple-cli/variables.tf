@@ -10,11 +10,11 @@ variable "tenancy_ocid" {
 # }
 
 variable "mp_listing_resource_id" {
-  default = "ocid1.image.oc1.iad.aaaaaaaarpliejzt7zjzgdp7tnkyl6pkfxu2bdpx6w2diy6x3vcc7736o6lq"
+  default     = "ocid1.image.oc1.iad.aaaaaaaarpliejzt7zjzgdp7tnkyl6pkfxu2bdpx6w2diy6x3vcc7736o6lq"
   description = "Marketplace - Image OCID"
 }
 
-variable "mp_listing_resource_version"{
+variable "mp_listing_resource_version" {
 }
 
 
@@ -48,7 +48,7 @@ variable "instance_password" {
 
 variable "instance_count" {
   description = "Number of VMs"
-  default = 1
+  default     = 1
 }
 
 variable "region" {
@@ -78,10 +78,10 @@ variable "orchestrator_tennant" {
 variable "robot_type" {
 }
 
-variable "robot_version"{
+variable "robot_version" {
 }
 
-variable "addRobotToExistingEnvs"{
+variable "addRobotToExistingEnvs" {
 }
 
 
@@ -99,7 +99,7 @@ variable "availability_domain_name" {
 }
 
 variable "availability_domain_number" {
-  default     = ""
+  default     = "1"
   description = "OCI Availability Domains: 1,2,3  (subject to region availability)"
 }
 
@@ -147,7 +147,7 @@ variable "subnet_dns_label" {
   description = "Subnet DNS Label"
 }
 
-variable "nsg_display_name"{
+variable "nsg_display_name" {
   default = ""
 }
 
