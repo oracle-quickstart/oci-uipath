@@ -2,6 +2,9 @@
 module "default_vcn_plus_subnet" {
   source              = "./terraform-modules/vcn-plus-subnet-default"
   compartment_ocid    = var.compartment_ocid
+  network_strategy    = var.network_strategy
+  vcn_id              = var.vcn_id
+  subnet_id           = var.subnet_id
   vcn_display_name    = var.vcn_display_name
   vcn_cidr_block      = var.vcn_cidr_block
   vcn_dns_label       = var.vcn_dns_label
@@ -15,25 +18,19 @@ module "default_network_sec_group" {
   compartment_ocid = var.compartment_ocid
   nsg_display_name = var.nsg_display_name
   nsg_whitelist_ip = var.nsg_whitelist_ip
-  vcn_id           = module.default_vcn_plus_subnet.vcn_id
+  vcn_id           = var.vcn_id
   vcn_cidr_block   = var.vcn_cidr_block
-}
-
-
-data "oci_identity_availability_domain" "ad" {
-  compartment_id = var.tenancy_ocid
-  ad_number      = var.availability_domain_number
 }
 
 resource "oci_core_instance" "simple-vm" {
   count               = var.instance_count
-  availability_domain = (var.availability_domain_name != "" ? var.availability_domain_name : data.oci_identity_availability_domain.ad.name)
+  availability_domain = var.availability_domain_name
   compartment_id      = var.compartment_ocid
   display_name        = "${var.vm_display_name}${count.index}"
   shape               = var.vm_compute_shape
 
   create_vnic_details {
-    subnet_id        = module.default_vcn_plus_subnet.subnet_id
+    subnet_id        = var.network_strategy == "Use Existing VCN and Subnet" ? module.default_vcn_plus_subnet.existing_subnet_id : module.default_vcn_plus_subnet.subnet_id
     display_name     = var.vm_display_name
     assign_public_ip = true
     nsg_ids          = [module.default_network_sec_group.nsg_id]

@@ -98,59 +98,51 @@ variable "availability_domain_name" {
   description = "Availability Domain"
 }
 
-variable "availability_domain_number" {
-  default     = "1"
-  description = "OCI Availability Domains: 1,2,3  (subject to region availability)"
-}
-
 variable "network_strategy" {
 }
 
 variable "vcn_id" {
-  default = ""
 }
 
 variable "vcn_display_name" {
+  default = null
   description = "VCN Name"
+}
+
+variable "vcn_dns_label" {
+  default = null
+}
+
+variable "subnet_dns_label" {
+  default = null
 }
 
 variable "vcn_cidr_block" {
   description = "VCN CIDR"
-  default     = "10.0.0.0/16"
+  default     = null
 }
 
-variable "vcn_dns_label" {
-  description = "VCN DNS Label"
-}
-
-variable "subnet_type" {
-  description = "Choose between private and public subnets"
-}
-
-variable "subnet_span" {
-  description = "Choose between regional and AD specific subnets"
-}
+# variable "subnet_type" {
+#   description = "Choose between private and public subnets"
+# }
 
 variable "subnet_id" {
-  default = ""
 }
 
 variable "subnet_display_name" {
+  default = null
   description = "Subnet Name"
 }
 
 variable "subnet_cidr_block" {
+  default = null
   description = "Subnet CIDR"
 }
 
-variable "subnet_dns_label" {
-  description = "Subnet DNS Label"
-}
-
 variable "nsg_display_name" {
-  default = ""
+  default = null
 }
 
 variable "nsg_whitelist_ip" {
-  default = ""
+  default = null
 }

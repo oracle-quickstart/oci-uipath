@@ -62,7 +62,7 @@ resource "oci_core_network_security_group_security_rule" "rule_ingress_vcn_icmp_
   network_security_group_id = oci_core_network_security_group.nsg.id
   protocol                  = 1
   direction                 = "INGRESS"
-  source                    = var.vcn_cidr_block
+  source                    = var.nsg_whitelist_ip != "" ? var.nsg_whitelist_ip : "0.0.0.0/0"
   stateless                 = true
 
   icmp_options {

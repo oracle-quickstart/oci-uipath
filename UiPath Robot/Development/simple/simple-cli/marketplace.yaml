@@ -28,7 +28,6 @@ variableGroups:
       - mp_listing_resource_id
       - mp_listing_resource_version
       - region
-      - availability_domain_number
 
   - title: "Basics"
     variables:
@@ -57,12 +56,11 @@ variableGroups:
       - vcn_display_name
       - vcn_cidr_block
       - vcn_dns_label
-      - subnet_type
-      - subnet_span
+      - subnet_dns_label
+      # - subnet_type
       - subnet_id
       - subnet_display_name
       - subnet_cidr_block
-      - subnet_dns_label
       - nsg_display_name
       - nsg_whitelist_ip
 
@@ -139,7 +137,7 @@ variables:
   #Orchestrator Connection Info variables
   orchestrator_url:
     type: link
-    require: true
+    required: true
     title: The URL of an existing and licensed Orchestrator
     description: Orchestrator URL
 
@@ -164,7 +162,7 @@ variables:
 
   robot_type:
     type: enum
-    require: true
+    required: true
     enum:
     - "Attended"
     - "Unattended"
@@ -173,7 +171,7 @@ variables:
 
   robot_version:
     type: enum
-    require: true
+    required: true
     enum:
     - "19.10.4"
     - "19.4.5"
@@ -205,31 +203,18 @@ variables:
     - "Use Existing VCN and Subnet"
     required: true
 
-  subnet_type:
-    visible: #($network_strategy  == ""Create New VCN and Subnet"")
-      eq:
-        - network_strategy
-        - Create New VCN and Subnet
-    type: enum
-    title: Subnet Type
-    description: Choose between private and public subnets
-    enum:
-    - "Private Subnet"
-    - "Public Subnet"
-    required: true
-
-  subnet_span:
-    visible: #($network_strategy  == ""Create New VCN and Subnet"")
-      eq:
-        - network_strategy
-        - Create New VCN and Subnet
-    type: enum
-    title: Subnet Span
-    description: Choose between regional and AD specific subnets
-    enum:
-    - "Regional Subnet"
-    - "AD Specific Subnet"
-    required: true
+  # subnet_type:
+  #   visible: #($network_strategy  == ""Create New VCN and Subnet"")
+  #     eq:
+  #       - network_strategy
+  #       - Create New VCN and Subnet
+  #   type: enum
+  #   title: Subnet Type
+  #   description: Choose between private and public subnets
+  #   enum:
+  #   - "Private Subnet"
+  #   - "Public Subnet"
+  #   required: false
 
   vcn_display_name:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
@@ -237,7 +222,7 @@ variables:
         - network_strategy
         - Create New VCN and Subnet
     type: string
-    required: true
+    required: false
     title: Virtual Cloud Network (VCN)
     description: The name of the new Virtual Cloud Network (VCN)
 
@@ -270,7 +255,7 @@ variables:
         - network_strategy
         - Create New VCN and Subnet
     type: string
-    required: true
+    required: false
     title: Subnet
     description: The name of the new Subnet
 
@@ -281,7 +266,7 @@ variables:
         - Create New VCN and Subnet
     type: string
     pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
-    required: true
+    required: false
     title: Subnet CIDR
     description: The CIDR of the new Subnet. The new subnet's CIDR should not overlap with any other subnet CIDRs.
 
@@ -297,17 +282,7 @@ variables:
     required: true
     title: Existing Subnet
     description: An existing subnet to use for compute instances. This subnet must already be present in the chosen VCN.
-
-  vcn_dns_label:
-    visible: #($network_strategy  == ""Create New VCN and Subnet"")
-      eq:
-        - network_strategy
-        - Create New VCN and Subnet
-    type: string
-    required: true
-    title: VCN DNS Label
-    description: VCN DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
-
+    
   subnet_dns_label:
     visible: #($network_strategy  == ""Create New VCN and Subnet"")
       eq:
@@ -318,6 +293,16 @@ variables:
     title: Subnet DNS Label
     description: Subnet DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
 
+  vcn_dns_label:
+    visible: #($network_strategy  == ""Create New VCN and Subnet"")
+      eq:
+        - network_strategy
+        - Create New VCN and Subnet
+    type: string
+    required: true
+    title: VCN DNS Label
+    description: VCN DNS Label. Only letters and numbers, starting with a letter. 15 characters max.
+  
   nsg_display_name:
     type: string
     required: true
