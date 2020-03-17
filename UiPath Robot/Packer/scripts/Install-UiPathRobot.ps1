@@ -24,6 +24,9 @@ Param (
     [Parameter(Mandatory = $true)]
     [ValidateSet("19.10.4","19.4.5","18.4.7")]
     [String] $RobotVersion
+    [Parameter()]
+    [ValidateSet("Yes", "No")]
+    [string]$addRobotsToExistingEnvs = "No"
 )
 
 #Set Error Action to Silently Continue
@@ -85,7 +88,7 @@ function Main {
             }
 
             Try {
-                
+
                 $msiPath = "C:\Windows\Temp\RobotArtifactFolder$RobotVersion\UiPathStudio.msi"
 
                 Install-Robot -msiPath $msiPath -msiFeatures $msiFeatures
@@ -227,7 +230,26 @@ function Main {
 
         }
 
+        if ($addRobotsToExistingEnvs -eq "Yes") {
 
+          #add Robot to existing Envs
+          $getOdataEnv = "$orchestratorUrl/odata/Environments"
+
+          $getOdataEnvironment = Invoke-RestMethod -Uri $getOdataEnv -Method Get -ContentType "application/json" -UseBasicParsing -WebSession $websession
+
+          foreach ($roEnv in $getOdataEnvironment.value.Id) {
+
+              $roEnvURL = "$orchestratorUrl/odata/Environments($($roEnv))/UiPath.Server.Configuration.OData.AddRobot"
+
+              $dataRobotEnv = @{
+                  robotId = "$($botWebResponse.Id)"
+              } | ConvertTo-Json
+
+              $botToEnvironment = Invoke-RestMethod -Uri $roEnvURL -Method Post -Body $dataRobotEnv -ContentType "application/json" -UseBasicParsing -WebSession $websession
+
+          }
+
+      }
 
     }
 
@@ -364,29 +386,29 @@ function Download-File {
     )
 
     Write-Verbose "Downloading file from $url to local path $outputFile"
-	  
+
     Try {
 
         $webClient = New-Object System.Net.WebClient
-	  
+
     }
-	
+
     Catch {
-	
+
         Log-Error -LogPath $sLogFile -ErrorDesc "The following error occurred: $_" -ExitGracefully $True
-		
+
     }
-	
+
     Try {
-	
+
         $webClient.DownloadFile($url, $outputFile)
-	  
+
     }
-	
+
     Catch {
-	
+
         Log-Error -LogPath $sLogFile -ErrorDesc "The following error occurred: $_" -ExitGracefully $True
-	
+
     }
 }
 
