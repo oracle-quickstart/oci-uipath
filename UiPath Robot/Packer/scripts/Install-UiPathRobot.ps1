@@ -23,7 +23,7 @@ Param (
     [string] $credType,
     [Parameter(Mandatory = $true)]
     [ValidateSet("19.10.4","19.4.5","18.4.7")]
-    [String] $RobotVersion
+    [String] $RobotVersion,
     [Parameter()]
     [ValidateSet("Yes", "No")]
     [string]$addRobotsToExistingEnvs = "No"
