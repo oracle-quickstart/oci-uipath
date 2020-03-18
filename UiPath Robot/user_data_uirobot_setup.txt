@@ -33,6 +33,8 @@
 
     New-Item $temp -ItemType directory
     Set-Location -Path $temp
-    Set-ExecutionPolicy Unrestricted -force
+    $policylist = Get-ExecutionPolicy -List
+    Write-Host $policylist
+    Set-ExecutionPolicy Unrestricted -Scope Process -Force
     Invoke-WebRequest -Uri $link -OutFile "$temp\$file"
     & "$temp\$file" -orchestratorUrl "${orchestrator_url}" -Tennant "${orchestrator_tennant}" -orchAdmin "${orchestrator_admin}" -orchPassword "${orchestrator_adminpw}" -adminUsername "$UserName" -machinePassword "$Password" -HostingType "Standard"  -credType "Default" -RobotType "${robot_type}" -RobotVersion "${robot_version}" -addRobotsToExistingEnvs "${addRobotToExistingEnvs}"
