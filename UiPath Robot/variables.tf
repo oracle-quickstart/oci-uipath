@@ -90,6 +90,7 @@ variable "addRobotToExistingEnvs" {
 ############################
 
 variable "vm_compute_shape" {
+  default = "VM.Standard2.4"
   description = "Compute Shape"
 }
 
@@ -99,50 +100,48 @@ variable "availability_domain_name" {
 }
 
 variable "network_strategy" {
+  default = "Create New VCN and Subnet"
 }
 
 variable "vcn_id" {
+  default = ""
 }
 
 variable "vcn_display_name" {
-  default = null
+  default = "uipath"
   description = "VCN Name"
 }
 
 variable "vcn_dns_label" {
-  default = null
+  default = "uipath"
 }
 
 variable "subnet_dns_label" {
-  default = null
+  default = "subnet"
 }
 
 variable "vcn_cidr_block" {
   description = "VCN CIDR"
-  default     = null
+  default     = "10.0.0.0/16"
 }
 
-# variable "subnet_type" {
-#   description = "Choose between private and public subnets"
-# }
-
 variable "subnet_id" {
+  default = ""
 }
 
 variable "subnet_display_name" {
-  default = null
   description = "Subnet Name"
+  default     = "subnet"
 }
 
 variable "subnet_cidr_block" {
-  default = null
   description = "Subnet CIDR"
+  default     = "10.0.0.0/24"
 }
-
 variable "nsg_display_name" {
-  default = null
+  default = ""
 }
 
 variable "nsg_whitelist_ip" {
-  default = null
+  default = ""
 }

@@ -1,16 +1,20 @@
-## Allow Ingress HTTPS from
+
+locals {
+  use_existing_network = var.network_strategy == "Use Existing VCN and Subnet" ? true : false
+}
+
 module "default_vcn_plus_subnet" {
-  source              = "./terraform-modules/vcn-plus-subnet-default"
-  compartment_ocid    = var.compartment_ocid
-  network_strategy    = var.network_strategy
-  vcn_id              = var.vcn_id
-  subnet_id           = var.subnet_id
-  vcn_display_name    = var.vcn_display_name
-  vcn_cidr_block      = var.vcn_cidr_block
-  vcn_dns_label       = var.vcn_dns_label
-  subnet_display_name = var.subnet_display_name
-  subnet_cidr_block   = var.subnet_cidr_block
-  subnet_dns_label    = var.subnet_dns_label
+  source               = "./terraform-modules/vcn-plus-subnet-default"
+  compartment_ocid     = var.compartment_ocid
+  use_existing_network = local.use_existing_network
+  vcn_id               = local.use_existing_network ? var.vcn_id : ""
+  subnet_id            = local.use_existing_network ? var.subnet_id : ""
+  vcn_display_name     = var.vcn_display_name
+  vcn_cidr_block       = var.vcn_cidr_block
+  vcn_dns_label        = var.vcn_dns_label
+  subnet_display_name  = var.subnet_display_name
+  subnet_cidr_block    = var.subnet_cidr_block
+  subnet_dns_label     = var.subnet_dns_label
 }
 
 module "default_network_sec_group" {
@@ -18,7 +22,7 @@ module "default_network_sec_group" {
   compartment_ocid = var.compartment_ocid
   nsg_display_name = var.nsg_display_name
   nsg_whitelist_ip = var.nsg_whitelist_ip
-  vcn_id           = var.vcn_id
+  vcn_id           = module.default_vcn_plus_subnet.vcn_id
   vcn_cidr_block   = var.vcn_cidr_block
 }
 
@@ -30,7 +34,7 @@ resource "oci_core_instance" "simple-vm" {
   shape               = var.vm_compute_shape
 
   create_vnic_details {
-    subnet_id        = var.network_strategy == "Use Existing VCN and Subnet" ? module.default_vcn_plus_subnet.existing_subnet_id : module.default_vcn_plus_subnet.subnet_id
+    subnet_id        = module.default_vcn_plus_subnet.subnet_id
     display_name     = var.vm_display_name
     assign_public_ip = true
     nsg_ids          = [module.default_network_sec_group.nsg_id]
