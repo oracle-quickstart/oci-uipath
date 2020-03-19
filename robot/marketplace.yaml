@@ -206,7 +206,7 @@ variables:
     default: "VM.Standard2.4"
     dependsOn:
       compartmentId: compartment_ocid
-      #imageId: mp_listing_resource_id
+      imageId: mp_listing_resource_id
 
   network_strategy:
     type: enum
