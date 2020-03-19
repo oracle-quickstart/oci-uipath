@@ -6,17 +6,22 @@
 variable "tenancy_ocid" {
 }
 
-# variable "mp_listing_id"{
-# }
+variable "mp_listing_id"{
+ default = "ocid1.appcataloglisting.oc1..aaaaaaaari5mnh7pqope3kur7op5xvvt7wappxzqd2vm42u2ygmyfnxt7fzq"
+}
 
 variable "mp_listing_resource_id" {
-  default     = "ocid1.image.oc1.iad.aaaaaaaarpliejzt7zjzgdp7tnkyl6pkfxu2bdpx6w2diy6x3vcc7736o6lq"
+  default     = "ocid1.image.oc1..aaaaaaaawq2a6pwmu33ro54ct6xsi7f7nyvya5n36rhod6p5prdr2za25eiq"
   description = "Marketplace - Image OCID"
 }
 
 variable "mp_listing_resource_version" {
+  default = "1.0-031820200437"
 }
 
+variable "use_marketplace_image" {
+  default = true
+}
 
 ############################
 #  Marketplace Image      #
