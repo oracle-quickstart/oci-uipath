@@ -3,7 +3,7 @@
     $Password="${instance_password}"
     $machineName =  "$Env:COMPUTERNAME"
     $temp = "C:\scripts"
-    $link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/UiPath%20Robot/Packer/scripts/Install-UiPathRobot.ps1"
+    $link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/robot/packer/scripts/Install-UiPathRobot.ps1"
     $file = "Install-UiRobot.ps1"
 
     # create Robot local user
