@@ -7,7 +7,7 @@ version: "20190304"
 
 # URL of Logo Icon used on Application Information tab. Logo must be 130x130 pixels.
 # (Optional)
-logoUrl: https://cloudmarketplace.oracle.com/marketplace/content?contentId=1234
+logoUrl: https://cloudmarketplace.oracle.com/marketplace/content?contentId=72870198
 
 # Used in Application Information tab to Hyperlink Title and Logo to the Marketplace
 # Listing.
@@ -16,12 +16,12 @@ logoUrl: https://cloudmarketplace.oracle.com/marketplace/content?contentId=1234
 # "marketplace-listing-id" tag for the same purpose.
 source:
   type: marketplace
-  reference: 123456
+  reference: 72858089
 
 locale: "en"
 variableGroups:
   - title: "Hidden Variable Group"
-    visible: true
+    visible: false
     variables:
       - tenancy_ocid
       - mp_listing_id
