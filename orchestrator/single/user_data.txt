@@ -1,0 +1,12 @@
+#ps1_sysnative
+    $temp = "C:\scripts"
+    $link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-orchestrator.ps1"
+    $file = "Install-orchestrator.ps1"
+
+    New-Item $temp -ItemType directory
+    Set-Location -Path $temp
+    $policylist = Get-ExecutionPolicy -List
+    Write-Host $policylist
+    Set-ExecutionPolicy Unrestricted -Scope Process -Force
+    Invoke-WebRequest -Uri $link -OutFile "$temp\$file"
+    & "$temp\$file" -OrchestratorVersion "${orchestratorVersion}" -passphrase "${passphrase}" -databaseServerName  "${databaseServerName}"  -databaseName "${databaseName}"  -databaseUserName "${databaseUserName}" -databaseUserPassword "${databaseUserPassword}" -orchestratorAdminPassword "${orchestratorAdminPassword}"
