@@ -37,4 +37,3 @@ resource "oci_core_subnet" "public_subnet" {
   dns_label                  = var.subnet_dns_label
   prohibit_public_ip_on_vnic = "false"
 }
-

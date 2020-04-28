@@ -36,6 +36,7 @@ resource "oci_core_instance" "sqlserver-vm" {
     display_name     = "sqlserver"
     assign_public_ip = true
     hostname_label = "sqlserver"
+    nsg_ids = [var.nsg_id]
   }
 
   source_details {

@@ -4,3 +4,4 @@ variable "vm_compute_shape" {}
 variable "subnet_id" {}
 variable "availability_domain" {}
 variable "mssql_sa_password" {}
+variable "nsg_id" {}
