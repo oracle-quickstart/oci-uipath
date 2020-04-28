@@ -1,7 +1,29 @@
 #ps1_sysnative
+    $UserName="${instance_username}"
+    $Password="${instance_password}"
+    $machineName =  "$Env:COMPUTERNAME"
     $temp = "C:\scripts"
-    $link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-orchestrator.ps1"
-    $file = "Install-orchestrator.ps1"
+    $link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-Orchestrator.ps1"
+    $file = "Install-orchestrator.ps1"    
+
+    # Create or update existing user
+    if($UserName -eq "opc") {
+    $admin = [ADSI]("WinNT://./$UserName, user")
+    $admin.SetPassword("$Password")
+    } else {
+    $Computer = [ADSI]"WinNT://$Env:COMPUTERNAME,Computer"
+    $User = $Computer.Create("User", $UserName)
+    $User.SetPassword("$Password")
+    $User.SetInfo()
+    $User.FullName = "$UserName"
+    $User.SetInfo()
+    $User.Put("Description", "UiPath Robot Admin Account")
+    $User.SetInfo()
+    $User.UserFlags = 65536
+    $User.SetInfo()
+    $Group = [ADSI]("WinNT://$Env:COMPUTERNAME/$localRobotRole,Group")
+    $Group.add("WinNT://$Env:COMPUTERNAME/$UserName")
+    }
 
     New-Item $temp -ItemType directory
     Set-Location -Path $temp
