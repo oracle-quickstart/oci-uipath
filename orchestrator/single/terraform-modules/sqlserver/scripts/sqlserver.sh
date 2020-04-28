@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+# expects "export MSSQL_SA_PASSWORD=xxx
 
 curl -o /etc/yum.repos.d/mssql-server.repo https://packages.microsoft.com/config/rhel/7/mssql-server-2019.repo
 yum install -y mssql-server
 
-ACCEPT_EULA='Y' MSSQL_PID='Developer' MSSQL_SA_PASSWORD='FooBar1234!!' MSSQL_TCP_PORT=1433 /opt/mssql/bin/mssql-conf setup
+ACCEPT_EULA='Y' MSSQL_PID='Evaluation' MSSQL_TCP_PORT=1433 /opt/mssql/bin/mssql-conf setup
 
 systemctl status mssql-server
 
@@ -22,3 +22,7 @@ ACCEPT_EULA='Y' yum install -y mssql-tools unixODBC-devel
 
 echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~opc/.bash_profile
 echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~opc/.bashrc
+
+# Create default db
+/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "$MSSQL_SA_PASSWORD" \
+ -Q "CREATE DATABASE uipath"

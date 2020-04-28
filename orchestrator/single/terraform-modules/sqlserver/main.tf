@@ -45,7 +45,14 @@ resource "oci_core_instance" "sqlserver-vm" {
 
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
-    user_data = base64encode(file("./scripts/sqlserver.sh"))
+    user_data = base64encode(join(
+      "\n",
+      [
+        "#!/usr/bin/env bash",
+        "export MSSQL_SA_PASSWORD=${var.mssql_sa_password}",
+        file("${path.module}/scripts/sqlserver.sh")
+      ],
+    ))
   }
 
 }
