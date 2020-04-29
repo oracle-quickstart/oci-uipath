@@ -72,19 +72,10 @@ variable "orchestratorAdminPassword" {
 variable "passphrase" {
 }
 
-variable "databaseServerName" {
-}
-
-variable "databaseName" {
-}
-
-variable "databaseUserName" {
-}
-
-variable "databaseUserPassword" {
-}
+# db variables passed to/used by orchestrator in SQL section
 
 variable "databaseAuthenticationMode"{
+ default = "SQL"
 }
 
 variable "appPoolIdentityType"{
@@ -155,4 +146,34 @@ variable "nsg_display_name" {
 
 variable "nsg_whitelist_ip" {
   default = ""
+}
+
+############################
+#  SQL settings   #
+############################
+variable "databaseType" {
+  # Understood values: "New SQL Server Evaluation", "Existing SQL Server", "New Paid SQL Server Standard"
+  # WARNING: paid option incurs a license charge beyond IaaS cost. See: https://console.us-ashburn-1.oraclecloud.com/marketplace/application/60874068/overview
+  default = "New SQL Server Evaluation"
+}
+variable "databaseServerName" {
+  # placeholder value required for ORM, change based on databaseType
+  default = "sqlserver.domain.com"
+}
+
+variable "databaseName" {
+  # placeholder value required for ORM, change based on databaseType
+  default = "uipath"
+}
+
+variable "databaseUserName" {
+  # placeholder value required for ORM, change based on databaseType
+  default = "SA"
+}
+
+variable "databaseUserPassword" {
+}
+
+variable "ssh_public_key"{
+  # Used only for SQL Server evaluation running on OL instance
 }

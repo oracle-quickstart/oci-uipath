@@ -1,6 +1,7 @@
 
 locals {
   use_existing_network = var.network_strategy == "Use Existing VCN and Subnet" ? true : false
+  sqlserver = ( var.databaseType == "New SQL Server Evaluation" || var.databaseType == "New Paid SQL Server Standard" ) ? module.sqlserver.sqlserver_private_ip : var.databaseServerName
 }
 
 module "default_vcn_plus_subnet" {
@@ -29,7 +30,7 @@ module "default_network_sec_group" {
 resource "oci_core_instance" "orch-single-instance" {
   availability_domain = var.availability_domain_name
   compartment_id      = var.compartment_ocid
-  display_name        = "${var.vm_display_name}"
+  display_name        = var.vm_display_name
   shape               = var.vm_compute_shape
 
   create_vnic_details {
@@ -50,15 +51,18 @@ resource "oci_core_instance" "orch-single-instance" {
 }
 
 data "template_file" "orchestrator_setup" {
-  template = file("./orchestrator/single/user_data.txt")
+  template = file("./user_data.txt")
   vars = {
+    instance_username  = var.instance_username
+    instance_password = var.instance_password
     orchestratorVersion         = var.orchestratorVersion
-    orchestratorFolder          = var.orchestratorFolder
-    databaseServerName          = var.databaseServerName
+    orchestratorFolder          = "C:\\Program Files\\UiPath\\Orchestrator"
+    databaseServerName          = local.sqlserver
     databaseName                = var.databaseName
     databaseUserName            = var.databaseUserName
     databaseUserPassword        = var.databaseUserPassword
     databaseAuthenticationMode  = var.databaseAuthenticationMode
+    passphrase                  = var.passphrase
     appPoolIdentityType         = var.appPoolIdentityType
     appPoolIdentityUser         = var.appPoolIdentityUser
     appPoolIdentityUserPassword = var.appPoolIdentityUserPassword
@@ -79,10 +83,30 @@ data "template_cloudinit_config" "cloudinit_config" {
 
 }
 
-output "instance_public_ip" {
-  value = oci_core_instance.simple-vm.public_ip
+module "sqlserver" {
+  source           = "./terraform-modules/sqlserver"
+  compartment_ocid = var.compartment_ocid
+  vm_compute_shape = "VM.Standard2.2"
+  subnet_id = module.default_vcn_plus_subnet.subnet_id
+  availability_domain = var.availability_domain_name
+  ssh_public_key = var.ssh_public_key
+  mssql_sa_password = var.databaseUserPassword
+  nsg_id = module.default_network_sec_group.nsg_id
+  type = var.databaseType == "New SQL Server Evaluation" ? "eval" : "paid"
 }
 
-output "instance_private_ip" {
-  value = oci_core_instance.simple-vm.private_ip
+output "orchestrator_public_ip" {
+  value = oci_core_instance.orch-single-instance.public_ip
+}
+
+output "orchestrator_private_ip" {
+  value = oci_core_instance.orch-single-instance.private_ip
+}
+
+output "sqlserver_hostname" {
+  value = module.sqlserver.sqlserver_hostname
+}
+
+output "sqlserver_private_ip" {
+  value = module.sqlserver.sqlserver_private_ip
 }

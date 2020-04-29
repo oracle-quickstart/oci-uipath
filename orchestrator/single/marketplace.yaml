@@ -21,7 +21,7 @@ source:
 locale: "en"
 variableGroups:
   - title: "Hidden Variable Group"
-    visible: false
+    visible: true
     variables:
       - tenancy_ocid
       - mp_listing_id
@@ -30,6 +30,7 @@ variableGroups:
       - region
       - compartment_ocid
       - use_marketplace_image
+      - databaseAuthenticationMode
 
   - title: "Basics"
     variables:
@@ -42,10 +43,6 @@ variableGroups:
       - orchestratorVersion
       - orchestratorAdminPassword
       - passphrase
-      - databaseServerName
-      - databaseName
-      - databaseUserName
-      - databaseUserPassword
       - appPoolIdentityType
       - appPoolIdentityUser
       - appPoolIdentityUserPassword
@@ -54,6 +51,16 @@ variableGroups:
     variables:
       - vm_compute_shape
       - availability_domain_name
+
+  - title: "SQL Settings"
+    variables:
+      - databaseType
+      - databaseServerName
+      - databaseName
+      - databaseUserName
+      - databaseUserPassword
+      - mssql_sa_password
+      - ssh_public_key
 
   - title: "Network Settings"
     variables:
@@ -111,9 +118,9 @@ variables:
   vm_display_name:
     type: string
     required: true
-    default: "robot"
+    default: "orchestrator"
     title: Instance Name
-    description: Display name/hostname of the instance, number appended based on instance count.
+    description: Display name/hostname of the instance.
 
   instance_username:
     type: string
@@ -139,9 +146,9 @@ variables:
     description: Orchestrator version
     default: "19.10.18"
     enum:
-    - '19.10.18'
-    - '19.4.7'
-    - '18.4.7'
+    - "19.10.18"
+    - "19.4.7"
+    - "18.4.7"
 
   orchestratorAdminPassword:
     type: password
@@ -151,35 +158,10 @@ variables:
 
   passphrase:
     type: password
-    required: password
+    required: true
     title: Passphrase
     description: Passphrase is used to generate same AppEncryption key, Nuget API keys, Machine Validation and Decryption keys
     pattern: "^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\\d\\W])|(?=.*\\W)(?=.*\\d))|(?=.*\\W)(?=.*[A-Z])(?=.*\\d)).{12,}$"
-    description: Password for admin user. 12 characters, contains 3 of lower case, uppercase, number, symbol
-
-  databaseServerName:
-    type: string
-    required: true
-    title: SQL Server Name (FQDN)
-    description: SQL Server that will host Orchestrator database
-
-  databaseName:
-    type: string
-    required: true
-    title: SQL Database Name
-    description: An empty pre-existing SQL Database needs to be available
-
-  databaseUserName:
-    type: string
-    required: true
-    title: Admin account of SQL Server
-    description: The admin account used by Orchestrator to connect to the database
-
-  databaseUserPassword:
-    type: password
-    required: true
-    title: SQL Server admin's password
-    description: The password of SQL Server's admin
 
   appPoolIdentityType:
     type: enum
@@ -188,9 +170,9 @@ variables:
     enum:
     - "USER"
     - "APPPOOLIDENTITY"
-  
+
   appPoolIdentityUser:
-    visible: 
+    visible:
       -eq:
         - appPoolIdentityType
         - USER
@@ -201,7 +183,7 @@ variables:
     description: The identity domain user under which the Orchestrator website will run
 
   appPoolIdentityUserPassword:
-    visible: 
+    visible:
       -eq:
         - appPoolIdentityType
         - USER
@@ -209,7 +191,7 @@ variables:
     required: true
     title: Application Pool Identity User's Password
     description: The Application Pool Identity User's Password
-  
+
   #Virtual Machine Settings variables
   availability_domain_name:
     type: oci:identity:availabilitydomain:name
@@ -228,6 +210,70 @@ variables:
       compartmentId: compartment_ocid
       imageId: mp_listing_resource_id
 
+  # SQL Settings
+  databaseType:
+    type: enum
+    required: true
+    title: Type of database for Orchestrator
+    description: Different options require different settings, existing option requires instance/user/pw to exist, paid option incurs a license charge
+    default: "New SQL Server Evaluation"
+    enum:
+      - "New SQL Server Evaluation"
+      - "Existing SQL Server"
+      - "New Paid SQL Server Standard"
+
+  ssh_public_key:
+    type: string
+    required: true
+    default: "<paste your key>"
+    title: SSH Public Key
+    description: Used only for SQL Server Evaluation running on Oracle Linux instance
+    visible:
+      eq:
+        - ${databaseType}
+        - "New SQL Server Evaluation"
+
+  databaseServerName:
+    type: string
+    required: true
+    default: "sqlserver.domain.com"
+    title: SQL Server Name (FQDN)
+    description: SQL Server that will host Orchestrator database
+    visible:
+      eq:
+        - ${databaseType}
+        - "Existing SQL Server"
+
+  databaseName:
+    type: string
+    required: true
+    default: "uipath"
+    title: SQL Database Name
+    description: An empty pre-existing SQL Database needs to be available
+    visible:
+      eq:
+        - ${databaseType}
+        - "Existing SQL Server"
+
+  databaseUserName:
+    type: string
+    required: true
+    default: SA
+    title: Admin account of SQL Server
+    description: The admin account used by Orchestrator to connect to the database
+    visible:
+      eq:
+        - ${databaseType}
+        - "Existing SQL Server"
+
+  databaseUserPassword:
+    type: password
+    required: true
+    title: SQL Server admin's password
+    description: The password of SQL Server's admin, 8 characters min, contains 3 of lower case, uppercase, number, symbol
+    pattern: "^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\\d\\W])|(?=.*\\W)(?=.*\\d))|(?=.*\\W)(?=.*[A-Z])(?=.*\\d)).{8,}$"
+
+  # Network Settings
   network_strategy:
     type: enum
     title: Network Strategy
