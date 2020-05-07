@@ -16,12 +16,12 @@ logoUrl: https://cloudmarketplace.oracle.com/marketplace/content?contentId=72870
 # "marketplace-listing-id" tag for the same purpose.
 source:
   type: marketplace
-  reference: 72858089
+  reference: 75745470
 
 locale: "en"
 variableGroups:
   - title: "Hidden Variable Group"
-    visible: true
+    visible: false
     variables:
       - tenancy_ocid
       - mp_listing_id
