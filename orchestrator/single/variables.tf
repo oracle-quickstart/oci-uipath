@@ -74,18 +74,7 @@ variable "passphrase" {
 
 # db variables passed to/used by orchestrator in SQL section
 
-variable "databaseAuthenticationMode"{
- default = "SQL"
-}
 
-variable "appPoolIdentityType"{
-}
-
-variable "appPoolIdentityUser"{
-}
-
-variable "appPoolIdentityUserPassword" {
-}
 
 ############################
 #  Virtual Machine Settings   #
