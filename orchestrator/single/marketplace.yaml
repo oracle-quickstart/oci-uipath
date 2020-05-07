@@ -30,7 +30,6 @@ variableGroups:
       - region
       - compartment_ocid
       - use_marketplace_image
-      - databaseAuthenticationMode
 
   - title: "Basics"
     variables:
@@ -43,9 +42,6 @@ variableGroups:
       - orchestratorVersion
       - orchestratorAdminPassword
       - passphrase
-      - appPoolIdentityType
-      - appPoolIdentityUser
-      - appPoolIdentityUserPassword
 
   - title: "Virtual Machine Settings"
     variables:
@@ -162,35 +158,6 @@ variables:
     title: Passphrase
     description: Passphrase is used to generate same AppEncryption key, Nuget API keys, Machine Validation and Decryption keys
     pattern: "^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\\d\\W])|(?=.*\\W)(?=.*\\d))|(?=.*\\W)(?=.*[A-Z])(?=.*\\d)).{12,}$"
-
-  appPoolIdentityType:
-    type: enum
-    required: true
-    default: "APPPOOLIDENTITY"
-    enum:
-    - "USER"
-    - "APPPOOLIDENTITY"
-
-  appPoolIdentityUser:
-    visible:
-      -eq:
-        - appPoolIdentityType
-        - USER
-    type: string
-    required: true
-    default: "uipath"
-    title: Application Pool Identity Domain User
-    description: The identity domain user under which the Orchestrator website will run
-
-  appPoolIdentityUserPassword:
-    visible:
-      -eq:
-        - appPoolIdentityType
-        - USER
-    type: password
-    required: true
-    title: Application Pool Identity User's Password
-    description: The Application Pool Identity User's Password
 
   #Virtual Machine Settings variables
   availability_domain_name:

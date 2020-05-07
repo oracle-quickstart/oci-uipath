@@ -61,11 +61,7 @@ data "template_file" "orchestrator_setup" {
     databaseName                = var.databaseName
     databaseUserName            = var.databaseUserName
     databaseUserPassword        = var.databaseUserPassword
-    databaseAuthenticationMode  = var.databaseAuthenticationMode
     passphrase                  = var.passphrase
-    appPoolIdentityType         = var.appPoolIdentityType
-    appPoolIdentityUser         = var.appPoolIdentityUser
-    appPoolIdentityUserPassword = var.appPoolIdentityUserPassword
     orchestratorAdminPassword   = var.orchestratorAdminPassword
 
   }
@@ -95,8 +91,8 @@ module "sqlserver" {
   type = var.databaseType == "New SQL Server Evaluation" ? "eval" : "paid"
 }
 
-output "orchestrator_public_ip" {
-  value = oci_core_instance.orch-single-instance.public_ip
+output "orchestrator_url" {
+  value = join("", ["https://", oci_core_instance.orch-single-instance.public_ip])
 }
 
 output "orchestrator_private_ip" {
