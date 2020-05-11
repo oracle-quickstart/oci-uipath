@@ -16,12 +16,12 @@ logoUrl: https://cloudmarketplace.oracle.com/marketplace/content?contentId=72870
 # "marketplace-listing-id" tag for the same purpose.
 source:
   type: marketplace
-  reference: 72858089
+  reference: 75745470
 
 locale: "en"
 variableGroups:
   - title: "Hidden Variable Group"
-    visible: true
+    visible: false
     variables:
       - tenancy_ocid
       - mp_listing_id
@@ -30,7 +30,6 @@ variableGroups:
       - region
       - compartment_ocid
       - use_marketplace_image
-      - databaseAuthenticationMode
 
   - title: "Basics"
     variables:
@@ -43,9 +42,6 @@ variableGroups:
       - orchestratorVersion
       - orchestratorAdminPassword
       - passphrase
-      - appPoolIdentityType
-      - appPoolIdentityUser
-      - appPoolIdentityUserPassword
 
   - title: "Virtual Machine Settings"
     variables:
@@ -162,35 +158,6 @@ variables:
     title: Passphrase
     description: Passphrase is used to generate same AppEncryption key, Nuget API keys, Machine Validation and Decryption keys
     pattern: "^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\\d\\W])|(?=.*\\W)(?=.*\\d))|(?=.*\\W)(?=.*[A-Z])(?=.*\\d)).{12,}$"
-
-  appPoolIdentityType:
-    type: enum
-    required: true
-    default: "APPPOOLIDENTITY"
-    enum:
-    - "USER"
-    - "APPPOOLIDENTITY"
-
-  appPoolIdentityUser:
-    visible:
-      -eq:
-        - appPoolIdentityType
-        - USER
-    type: string
-    required: true
-    default: "uipath"
-    title: Application Pool Identity Domain User
-    description: The identity domain user under which the Orchestrator website will run
-
-  appPoolIdentityUserPassword:
-    visible:
-      -eq:
-        - appPoolIdentityType
-        - USER
-    type: password
-    required: true
-    title: Application Pool Identity User's Password
-    description: The Application Pool Identity User's Password
 
   #Virtual Machine Settings variables
   availability_domain_name:
