@@ -7,49 +7,49 @@
 
     .PARAMETER orchestratorVersion
       String. Allowed versions: FTS 19.x and LTS 18.4.x . Version of the Orchestrator which will be installed. Example: $orchestratorVersion = "19.4.3"
- 
+
     .PARAMETER orchestratorFolder
       String. Path where Orchestrator will be installed. Example: $orchestratorFolder = "C:\Program Files\UiPath\Orchestrator"
- 
+
     .PARAMETER orchestratorHostname
       String. Orchestrator server name, public or private DNS of the server can also be used. Example: $orchestratorHostname = "serverName"
- 
+
     .PARAMETER databaseServerName
       String. Mandatory. SQL server name. Example: $databaseServerName = "SQLServerName.local"
- 
+
     .PARAMETER databaseName
       String. Mandatory. Database Name. Example: $databaseName = "devtestdb"
- 
+
     .PARAMETER databaseUserName
       String. Mandatory. Database Username. Example: $databaseUserName = "devtestdbuser"
- 
+
     .PARAMETER databaseUserPassword
       String. Mandatory. Database Password  Example: $databaseUserPassword = "d3vt3std@taB@s3!"
 
     .PARAMETER passphrase
       String. Mandatory. Passphrase is used to generate same AppEncryption key, Nuget API keys, Machine Validation and Decryption keys.  Example: $passphrase = "AnyPassPhrase!@#$"
- 
+
     .PARAMETER redisServerHost
       String. There is no need to use Redis if there is only one Orchestrator instance. Redis is mandatory in multi-node deployment.  Example: $redisServerHost = "redishostDNS"
- 
+
     .PARAMETER nuGetStoragePath
       String. Mandatory. Storage Path where the Nuget Packages are saved. Also you can use NFS or SMB share.  Example: $nuGetStoragePath = "\\nfs-share\NugetPackages"
 
     .PARAMETER orchestratorAdminPassword
       String. Mandatory. Orchestrator Admin password is necessary for a new installation and to change the Nuget API keys. Example: $orchestratorAdminPassword = "P@ssW05D!"
- 
+
     .PARAMETER orchestratorAdminUsername
       String. Orchestrator Admin username in order to change the Nuget API Keys.  Example: $orchestratorAdminUsername = "admin"
- 
+
     .PARAMETER orchestratorTennant
       String. Orchestrator Tennant in order to change the Nuget API Key.  Example: $orchestratorTennant = "Default"
- 
+
     .INPUTS
       Parameters above.
 
     .OUTPUTS
       None
-    
+
     .Example
       powershell.exe -ExecutionPolicy Bypass -File "\\fileLocation\Install-UiPathOrchestrator.ps1" -OrchestratorVersion "19.4.3" -orchestratorFolder "C:\Program Files\UiPath\Orchestrator" -passphrase "AnyPassPhrase!@#$" -databaseServerName  "SQLServerName.local"  -databaseName "devtestdb"  -databaseUserName "devtestdbuser" -databaseUserPassword "d3vt3std@taB@s3!" -orchestratorAdminPassword "P@ssW05D!" -redisServerHost "redishostDNS" -NuGetStoragePath "\\nfs-share\NugetPackages"
 #>
@@ -58,8 +58,8 @@
 param(
 
     [Parameter()]
-    [ValidateSet('19.10.18','19.4.7', '18.4.7')]
-    [string] $orchestratorVersion = "19.10.18",
+    [ValidateSet('20.4.0','19.10.18','19.4.7', '18.4.7')]
+    [string] $orchestratorVersion = "20.4.0",
 
     [Parameter()]
     [string] $orchestratorFolder = "${env:ProgramFiles(x86)}\UiPath\Orchestrator",
@@ -200,7 +200,7 @@ function Main {
     $checkFeature = Get-WindowsFeature "IIS-DirectoryBrowsing"
     if ( $checkFeature.Installed -eq $true) {
         Disable-WindowsOptionalFeature -FeatureName IIS-DirectoryBrowsing -Remove -NoRestart -Online
-        Log-Write -LogPath $sLogPath -LineValue "Feature IIS-DirectoryBrowsing is removed" 
+        Log-Write -LogPath $sLogPath -LineValue "Feature IIS-DirectoryBrowsing is removed"
     }
 
     #install URLrewrite
@@ -305,7 +305,7 @@ function Main {
 
      #set storage path
     if ($nuGetStoragePath) {
-       
+
         if ($orchestratorVersion -lt "19.4.1") {
 
             $LBkey = @("NuGet.Packages.Path", "NuGet.Activities.Path" )
@@ -372,14 +372,14 @@ function Main {
     if ($orchestratorLicenseCode) {
 
         Try {
-      
+
             #Check if Orchestrator is already licensed
             $getLicenseURL = "localhost/odata/Settings/UiPath.Server.Configuration.OData.GetLicense()"
             $getOrchestratorLicense = Invoke-RestMethod -Uri $getLicenseURL -Method GET -ContentType "application/json" -UseBasicParsing -WebSession $websession
 
             if ( $getOrchestratorLicense.IsExpired -eq $true) {
                 # Create boundary
-                $boundary = [System.Guid]::NewGuid().ToString()	
+                $boundary = [System.Guid]::NewGuid().ToString()
 
                 # Create linefeed characters
                 $LF = "`r`n"
@@ -403,7 +403,7 @@ function Main {
         Catch {
             Log-Error -LogPath $sLogFile -ErrorDesc "The following error occurred: $($_.exception.message)" -ExitGracefully $False
         }
-      
+
     }
 
 }
@@ -425,7 +425,7 @@ function Invoke-MSIExec {
     param (
         [Parameter(Mandatory = $true)]
         [string] $msiPath,
-      
+
         [Parameter(Mandatory = $true)]
         [string] $logPath,
 
@@ -505,7 +505,7 @@ function Install-UiPathOrchestratorEnterprise {
     $process = Invoke-MSIExec -msiPath $msiPath -logPath $logPath -features $msiFeatures -properties $msiProperties
 
     Log-Write -LogPath $sLogFile -LineValue "Installing Features $($msiFeatures)"
- 
+
 
     return @{
         LogPath        = $logPath;
@@ -525,12 +525,12 @@ function Install-UiPathOrchestratorEnterprise {
 
     .OUTPUTS
       None
-    
+
     .Example
       Install-UrlRewrite -urlRWpath "C:\temp\rewrite_amd64.msi"
 #>
 function Install-UrlRewrite {
-  
+
     param(
 
         [Parameter(Mandatory = $true)]
@@ -580,7 +580,7 @@ function Install-UrlRewrite {
 
     .OUTPUTS
       Encyption key, Nuget API key, Machine Validation and Decryption keys.
-    
+
     .Example
       Generate-Key -passphrase "YourP@ssphr4s3!"
 #>
@@ -591,7 +591,7 @@ function Generate-Key {
         [Parameter(Mandatory = $true)]
         [string]
         $passphrase
-    
+
     )
     function KeyGenFromBuffer([int] $KeyLength, [byte[]] $Buffer) {
 
@@ -660,7 +660,7 @@ function Generate-Key {
 
     .OUTPUTS
       None
-    
+
     .Example
       SetMachineKey -webconfigPath "C:\UiPathOrchestrator\web.config" -validationKey "ValidationKey 128 bytes" -decryptionKey "DecryptionKey 64 bytes" -validation "SHA1" -decryption "AES"
 
@@ -710,7 +710,7 @@ function SetMachineKey {
         $system_web.SelectSingleNode("machineKey").SetAttribute("decryption", "$decryption")
         $a = $xml.Save($machineConfig)
     }
-    else { 
+    else {
         Write-Error -Message "Error: Webconfig does not exist in '$webconfigPath'"
         Log-Error -LogPath $sLogFile -ErrorDesc "Error: Webconfig does not exist '$webconfigPath'" -ExitGracefully $True
     }
@@ -737,7 +737,7 @@ function SetMachineKey {
 
     .OUTPUTS
       None
-    
+
     .Example
       Set-AppSettings -path "C:\UiPathOrchestrator" -key "NuGet.Packages.Path" -value "\\localhost\NugetPackagesFolder"
 #>
@@ -817,7 +817,7 @@ function Set-AppSettings {
 
     .OUTPUTS
       None
-    
+
     .Example
       TestOrchestratorConnection -orchestratorURL "https://$orchestratorHostname"
 #>
@@ -862,7 +862,7 @@ function TestOrchestratorConnection {
 
     .OUTPUTS
       None
-    
+
     .Example
       Install-UiPathOrchestratorFeatures -features  @('IIS-DefaultDocument','WCF-TCP-PortSharing45','ClientForNFS-Infrastructure')
 #>
