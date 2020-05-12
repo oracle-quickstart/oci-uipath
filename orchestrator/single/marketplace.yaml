@@ -150,7 +150,7 @@ variables:
     type: password
     required: true
     title: Orchestrator admin's password
-    description: The admin's password of Orchestrator
+    description: The admin's password of Orchestrator. 8 characters long, must have at least one lowercase character and at least one digit.
 
   passphrase:
     type: password
