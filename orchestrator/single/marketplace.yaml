@@ -140,16 +140,17 @@ variables:
     required: true
     title: The version of Orchestrator to be deployed
     description: Orchestrator version
-    default: "19.10.18"
+    default: "20.4.1"
     enum:
+    - "20.4.1"
     - "19.10.18"
-    - "19.4.7"
-    - "18.4.7"
+
 
   orchestratorAdminPassword:
     type: password
     required: true
     title: Orchestrator admin's password
+    pattern: "^(?:(?=[a-z])|(?=\\S*?[0-9])).{8,}$"
     description: The admin's password of Orchestrator. 8 characters long, must have at least one lowercase character and at least one digit.
 
   passphrase:
@@ -203,7 +204,7 @@ variables:
   databaseServerName:
     type: string
     required: true
-    default: "sqlserver.domain.com"
+    default: "sqlserver2.domain.com"
     title: SQL Server Name (FQDN)
     description: SQL Server that will host Orchestrator database
     visible:

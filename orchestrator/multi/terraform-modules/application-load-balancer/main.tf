@@ -6,11 +6,8 @@ resource "oci_load_balancer_load_balancer" "test_load_balancer" {
     subnet_ids = "${var.load_balancer_subnet_ids}"
 
     #Optional
-    defined_tags = {"Operations.CostCenter"= "42"}
-    freeform_tags = {"Department"= "Finance"}
     ip_mode = "${var.load_balancer_ip_mode}"
     is_private = "${var.load_balancer_is_private}"
-    network_security_group_ids = "${var.load_balancer_network_security_group_ids}"
 }
 
 resource "oci_load_balancer_backend_set" "test_backend_set" {
@@ -55,9 +52,6 @@ resource "oci_load_balancer_backend_set" "test_backend_set" {
         #Required
         certificate_name = "${oci_load_balancer_certificate.test_certificate.certificate_name}"
 
-        #Optional
-        verify_depth = "${var.backend_set_ssl_configuration_verify_depth}"
-        verify_peer_certificate = "${var.backend_set_ssl_configuration_verify_peer_certificate}"
     }
 }
 
@@ -98,8 +92,5 @@ resource "oci_load_balancer_listener" "test_listener" {
         #Required
         certificate_name = "${oci_load_balancer_certificate.test_certificate.name}"
 
-        #Optional
-        verify_depth = "${var.listener_ssl_configuration_verify_depth}"
-        verify_peer_certificate = "${var.listener_ssl_configuration_verify_peer_certificate}"
     }
 }
