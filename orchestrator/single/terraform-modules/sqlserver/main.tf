@@ -55,7 +55,7 @@ resource "oci_core_instance" "sqlserver-vm" {
       "\n",
       [
         "#!/usr/bin/env bash",
-        "export MSSQL_SA_PASSWORD=${var.mssql_sa_password}",
+        "export MSSQL_SA_PASSWORD='${var.mssql_sa_password}'",
         file("${path.module}/scripts/sqlserver.sh")
       ],
     ))

@@ -1,10 +1,10 @@
 #ps1_sysnative
     $UserName="${instance_username}"
-    $Password="${instance_password}"
+    $Password='${instance_password}'
     $machineName =  "$Env:COMPUTERNAME"
     $temp = "C:\scripts"
     $link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-Orchestrator.ps1"
-    $file = "Install-orchestrator.ps1"    
+    $file = "Install-orchestrator.ps1"
 
     # Create or update existing user
     if($UserName -eq "opc") {
@@ -31,4 +31,4 @@
     Write-Host $policylist
     Set-ExecutionPolicy Unrestricted -Scope Process -Force
     Invoke-WebRequest -Uri $link -OutFile "$temp\$file"
-    & "$temp\$file" -OrchestratorVersion "${orchestratorVersion}" -passphrase "${passphrase}" -databaseServerName  "${databaseServerName}"  -databaseName "${databaseName}"  -databaseUserName "${databaseUserName}" -databaseUserPassword "${databaseUserPassword}" -orchestratorAdminPassword "${orchestratorAdminPassword}"
+    & "$temp\$file" -OrchestratorVersion "${orchestratorVersion}" -passphrase '${passphrase}' -databaseServerName  "${databaseServerName}"  -databaseName "${databaseName}"  -databaseUserName "${databaseUserName}" -databaseUserPassword '${databaseUserPassword}' -orchestratorAdminPassword '${orchestratorAdminPassword}'
