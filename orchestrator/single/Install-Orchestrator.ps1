@@ -230,7 +230,13 @@ function Main {
 
     $getEncryptionKey = Generate-Key -passphrase $passphrase
 
-    $msiFeatures = @("OrchestratorFeature", "IdentityFeature ")
+    $msiFeatures = @("OrchestratorFeature")
+
+    if ($orchestratorVersion -eq "20.4.1") {
+
+        $msiFeatures += @("IdentityFeature")
+    }
+
     $msiProperties = @{ }
     $msiProperties += @{
         "ORCHESTRATORFOLDER"          = "`"$($orchestratorFolder)`"";
