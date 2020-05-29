@@ -144,6 +144,7 @@ function Main {
         $source += "https://download.uipath.com/versions/$orchestratorVersion/UiPathOrchestrator.msi"
         $source += "https://download.microsoft.com/download/C/9/E/C9E8180D-4E51-40A6-A9BF-776990D8BCA9/rewrite_amd64.msi"
         $source += "https://download.microsoft.com/download/6/E/4/6E48E8AB-DC00-419E-9704-06DD46E5F81D/NDP472-KB4054530-x86-x64-AllOS-ENU.exe"
+        $source += "https://download.visualstudio.microsoft.com/download/pr/5bed16f2-fd1a-4027-bee3-3d6a1b5844cc/dd22ca2820fadb57fd5378e1763d27cd/dotnet-hosting-3.1.4-win.exe"
         $tries = 5
         while ($tries -ge 1) {
             try {
@@ -215,6 +216,9 @@ function Main {
 
     # install .Net 4.7.2
     & "$tempDirectory\NDP472-KB4054530-x86-x64-AllOS-ENU.exe" /q /norestart
+
+    # install ASP.Net Core IIS Module v3.1.4
+    & "$tempDirectory\dotnet-hosting-3.1.4-win.exe" /q /norestart
 
     # ((Invoke-WebRequest -Uri http://169.254.169.254/latest/meta-data/public-hostname -UseBasicParsing).RawContent -split "`n")[-1]
 
