@@ -238,7 +238,7 @@ function Main {
         $msiFeatures += @("IdentityFeature")
 
         # install ASP.Net Core IIS Module v3.1.4
-        & "$tempDirectory\dotnet-hosting-3.1.4-win.exe" /q /norestart
+        & "$tempDirectory\dotnet-hosting-3.1.3-win.exe" /q /norestart
 
     }
 
