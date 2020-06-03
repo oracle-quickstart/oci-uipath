@@ -233,14 +233,20 @@ function Main {
 
     $msiFeatures = @("OrchestratorFeature")
 
-    if ($orchestratorVersion.StartWith("2")) {
+    if ($orchestratorVersion.StartsWith("2")) {
 
         $msiFeatures += @("IdentityFeature")
-
-        Log-Write -LogPath $sLogFile -LineValue "Installing Dotnet hosting...."
-        # install ASP.Net Core IIS Module v3.1.4
-        Start-Process "$tempDirectory\dotnet-hosting-3.1.3-win.exe" -ArgumentList "/q","/norestart" -Verb RunAs
-        Log-Write -LogPath $sLogFile -LineValue "Dotnet hosting installed"
+        
+        try {
+          Log-Write -LogPath $sLogFile -LineValue "Installing Dotnet hosting...."
+          # install ASP.Net Core IIS Module v3.1.4
+          Start-Process "$tempDirectory\dotnet-hosting-3.1.3-win.exe" -ArgumentList "/q","/norestart" -Verb RunAs
+          Log-Write -LogPath $sLogFile -LineValue "Dotnet hosting installed"
+        }
+        catch {
+          Write-Error $_.exception.message
+          Log-Error -LogPath $sLogFile -ErrorDesc "$($_.exception.message) installing Dotnet hosting" -ExitGracefully $True
+      }
 
     }
 
