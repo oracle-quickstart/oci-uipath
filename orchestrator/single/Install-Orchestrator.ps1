@@ -237,8 +237,10 @@ function Main {
 
         $msiFeatures += @("IdentityFeature")
 
+        Log-Write -LogPath $sLogFile -LineValue "Installing Dotnet hosting...."
         # install ASP.Net Core IIS Module v3.1.4
-        & "$tempDirectory\dotnet-hosting-3.1.3-win.exe" /q /norestart
+        Start-Process "$tempDirectory\dotnet-hosting-3.1.3-win.exe" -ArgumentList "/q","/norestart" -Verb RunAs
+        Log-Write -LogPath $sLogFile -LineValue "Dotnet hosting installed"
 
     }
 
