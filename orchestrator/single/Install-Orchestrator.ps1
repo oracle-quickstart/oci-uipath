@@ -215,7 +215,7 @@ function Main {
     Install-UrlRewrite -urlRWpath "$tempDirectory\rewrite_amd64.msi"
 
     # install .Net 4.7.2
-    Start-Process "$tempDirectory\NDP472-KB4054530-x86-x64-AllOS-ENU.exe" -ArgumentList "/q","/norestart" -Verb RunAs -Wait
+    Install-DotNetFramework -dotNetFrameworkPath "$tempDirectory\NDP472-KB4054530-x86-x64-AllOS-ENU.exe"
 
     # ((Invoke-WebRequest -Uri http://169.254.169.254/latest/meta-data/public-hostname -UseBasicParsing).RawContent -split "`n")[-1]
 
@@ -238,10 +238,9 @@ function Main {
         $msiFeatures += @("IdentityFeature")
         
         try {
-          Log-Write -LogPath $sLogFile -LineValue "Installing Dotnet hosting...."
-          # install ASP.Net Core IIS Module v3.1.4
-          Start-Process "$tempDirectory\dotnet-hosting-3.1.3-win.exe" -ArgumentList "OPT_NO_SHARED_CONFIG_CHECK=1","/q","/norestart" -Verb RunAs -Wait
-          Log-Write -LogPath $sLogFile -LineValue "Dotnet hosting installed"
+          
+          Install-DotNetHostingBundle -DotNetHostingBundlePath "$tempDirectory\dotnet-hosting-3.1.3-win.exe"
+          
         }
         catch {
           Write-Error $_.exception.message
@@ -590,6 +589,92 @@ function Install-UrlRewrite {
     else {
         Log-Write -LogPath $sLogFile -LineValue  "IIS URL Rewrite 2.0 Module successfully installed"
     }
+}
+
+<#
+    .SYNOPSIS
+      Install .Net Framework 4.7.2 necessary for UiPath Orchestrator.
+
+    .PARAMETER dotNetFrameworkPath
+      Mandatory. String. Path to URL Rewrite package. Example: $dotNetFrameworkPath = "C:\temp\NDP472-KB4054530-x86-x64-AllOS-ENU.exe"
+
+    .INPUTS
+      Parameters above.
+
+    .OUTPUTS
+      None
+
+    .Example
+      Install-DotNetFramework -dotNetFrameworkPath "C:\temp\NDP472-KB4054530-x86-x64-AllOS-ENU.exe"
+#>
+function Install-DotNetFramework {
+
+  param(
+
+      [Parameter(Mandatory = $true)]
+      [string]
+      $dotNetFrameworkPath
+
+  )
+
+    $installer = $dotNetFrameworkPath
+
+  $exitCode = 0
+  $argumentList = "/q /norestart"
+
+  Log-Write -LogPath $sLogFile -LineValue  "Installing .Net Framework 4.7.2"
+
+  $exitCode = (Start-Process -FilePath $installer -ArgumentList $argumentList -Verb RunAs -Wait).ExitCode
+
+  if ($exitCode -ne 0) {
+      Log-Error -LogPath $sLogFile -ErrorDesc "Failed to install .Net Framework  4.7.2(Exit code: $exitCode)" -ExitGracefully $False
+  }
+  else {
+      Log-Write -LogPath $sLogFile -LineValue  ".Net Framework 4.7.2 successfully installed"
+  }
+}
+
+<#
+    .SYNOPSIS
+      Install ASP.NET Core Hosting Bundle necessary for UiPath Orchestrator.
+
+    .PARAMETER DotNetHostingBundlePath
+      Mandatory. String. Path to URL Rewrite package. Example: $DotNetHostingBundlePath = "C:\temp\dotnet-hosting-3.1.3-win.exe"
+
+    .INPUTS
+      Parameters above.
+
+    .OUTPUTS
+      None
+
+    .Example
+      Install-DotNetHostingBundle -DotNetHostingBundlePath "C:\temp\dotnet-hosting-3.1.3-win.exe"
+#>
+function Install-DotNetHostingBundle {
+
+  param(
+
+      [Parameter(Mandatory = $true)]
+      [string]
+      $DotNetHostingBundlePath
+
+  )
+
+    $installer = $DotNetHostingBundlePath
+
+  $exitCode = 0
+  $argumentList = "OPT_NO_SHARED_CONFIG_CHECK=1 /q /norestart"
+
+  Log-Write -LogPath $sLogFile -LineValue  "Installing ASP.NET Core Hosting Bundle"
+
+  $exitCode = (Start-Process -FilePath $installer -ArgumentList $argumentList -Verb RunAs -Wait).ExitCode
+
+  if ($exitCode -ne 0) {
+      Log-Error -LogPath $sLogFile -ErrorDesc "Failed to install ASP.NET Core Hosting Bundle(Exit code: $exitCode)" -ExitGracefully $False
+  }
+  else {
+      Log-Write -LogPath $sLogFile -LineValue  "ASP.NET Core Hosting Bundle successfully installed"
+  }
 }
 
 <#
