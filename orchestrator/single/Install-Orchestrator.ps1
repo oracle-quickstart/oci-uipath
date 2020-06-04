@@ -215,7 +215,9 @@ function Main {
     Install-UrlRewrite -urlRWpath "$tempDirectory\rewrite_amd64.msi"
 
     # install .Net 4.7.2
-    & "$tempDirectory\NDP472-KB4054530-x86-x64-AllOS-ENU.exe" /q /norestart
+    $dotNetProc = Start-Process "$tempDirectory\NDP472-KB4054530-x86-x64-AllOS-ENU.exe" -ArgumentList "/q","/norestart" -Verb RunAs -NoNewWindow
+    # waiting for dotNetProc to finish because it conflicts with ASP.Net Core IIS Module installer
+    Wait-Process -InputObject $dotNetProc
 
     # ((Invoke-WebRequest -Uri http://169.254.169.254/latest/meta-data/public-hostname -UseBasicParsing).RawContent -split "`n")[-1]
 
@@ -240,7 +242,7 @@ function Main {
         try {
           Log-Write -LogPath $sLogFile -LineValue "Installing Dotnet hosting...."
           # install ASP.Net Core IIS Module v3.1.4
-          Start-Process "$tempDirectory\dotnet-hosting-3.1.3-win.exe" -ArgumentList "/q","/norestart" -Verb RunAs
+          Start-Process "$tempDirectory\dotnet-hosting-3.1.3-win.exe" -ArgumentList "OPT_NO_SHARED_CONFIG_CHECK=1","/q","/norestart" -Verb RunAs -NoNewWindow
           Log-Write -LogPath $sLogFile -LineValue "Dotnet hosting installed"
         }
         catch {
