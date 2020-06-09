@@ -9,7 +9,7 @@ systemctl status mssql-server
 
 systemctl stop firewalld
 echo "systemctl is-active firewalld"
-systemctl is-active firewalldgit 
+systemctl is-active firewalld
 echo "Open port 1433"
 firewall-offline-cmd --zone=public --add-port=1433/tcp
 echo "Enable and start firewalld"
