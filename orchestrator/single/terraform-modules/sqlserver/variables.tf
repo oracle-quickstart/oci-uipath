@@ -3,6 +3,7 @@ variable "ssh_public_key" {}
 variable "vm_compute_shape" {}
 variable "subnet_id" {}
 variable "availability_domain" {}
+variable "password" {}
 variable "mssql_sa_password" {}
 variable "nsg_id" {}
 variable "type" {}

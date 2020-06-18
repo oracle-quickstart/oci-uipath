@@ -1,35 +1,28 @@
 data "oci_core_images" "ol7" {
-  compartment_id      = "${var.compartment_ocid}"
-  operating_system    = "Oracle Linux"
-  sort_by             = "TIMECREATED"
-  sort_order          = "DESC"
-  state               = "AVAILABLE"
-
-  # filter restricts to pegged version regardless of region
-  filter {
-    name = "display_name"
-    values = ["Oracle-Linux-7.7-2020.03.23-0"]
-    regex = false
-  }
+  compartment_id   = "${var.compartment_ocid}"
+  operating_system = "Oracle Linux"
+  sort_by          = "TIMECREATED"
+  sort_order       = "DESC"
+  state            = "AVAILABLE"
 
   # filter restricts to OL 7
   filter {
-    name = "operating_system_version"
+    name   = "operating_system_version"
     values = ["7\\.[0-9]"]
-    regex = true
+    regex  = true
   }
 }
 
 locals {
   # Platform OL7 image regarless of region
-  platform_image = data.oci_core_images.ol7.images[0].id
+  platform_image              = data.oci_core_images.ol7.images[0].id
   mp_listing_id               = var.sql_mp_listing_id
   mp_listing_resource_id      = var.sql_mp_listing_resource_id
   mp_listing_resource_version = var.sql_mp_listing_resource_version
 
 }
 
-resource "oci_core_instance" "sqlserver-vm" {
+resource "oci_core_instance" "sqlserver-eval" {
   availability_domain = var.availability_domain
   compartment_id      = var.compartment_ocid
   display_name        = "sqlserver"
@@ -38,10 +31,10 @@ resource "oci_core_instance" "sqlserver-vm" {
 
   create_vnic_details {
     subnet_id        = var.subnet_id
-    display_name     = "sqlserver"
+    display_name     = "sqlserver-eval"
     assign_public_ip = true
-    hostname_label = "sqlserver"
-    nsg_ids = [var.nsg_id]
+    hostname_label   = "sqlserver"
+    nsg_ids          = [var.nsg_id]
   }
 
   source_details {
@@ -61,6 +54,11 @@ resource "oci_core_instance" "sqlserver-vm" {
     ))
   }
 
+  lifecycle {
+    ignore_changes = [
+      source_details[0].source_id
+    ]
+  }
 }
 
 
@@ -84,6 +82,18 @@ resource "oci_core_instance" "sqlserver-standard" {
     source_id   = local.mp_listing_resource_id
   }
 
+  metadata = {
+    user_data = base64encode(join(
+      "\n",
+      [
+        "#ps1_sysnative",
+        "$UserName='opc'",
+        "$DBUser='uipath'",
+        "$DBPassword='${var.mssql_sa_password}'",
+        "$Password='${var.password}'",
+        file("${path.module}/scripts/sqlserver.ps")
+    ]))
+  }
 }
 
 
@@ -124,7 +134,7 @@ data "oci_core_app_catalog_subscriptions" "mp_image_subscription" {
   listing_id = local.mp_listing_id
 
   filter {
-    name = "listing_resource_version"
+    name   = "listing_resource_version"
     values = [local.mp_listing_resource_version]
   }
 }
