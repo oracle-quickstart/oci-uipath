@@ -1,7 +1,7 @@
 
 locals {
   use_existing_network = var.network_strategy == "Use Existing VCN and Subnet" ? true : false
-  sqlserver = ( var.databaseType == "New SQL Server Evaluation" || var.databaseType == "New Paid SQL Server Standard" ) ? module.sqlserver.sqlserver_private_ip : var.databaseServerName
+  sqlserver            = (var.databaseType == "New SQL Server Evaluation" || var.databaseType == "New Paid SQL Server Standard") ? module.sqlserver.sqlserver_private_ip : var.databaseServerName
 }
 
 module "default_vcn_plus_subnet" {
@@ -48,21 +48,25 @@ resource "oci_core_instance" "orch-single-instance" {
   metadata = {
     user_data = data.template_cloudinit_config.cloudinit_config.rendered
   }
+
+  depends_on = [
+    module.sqlserver
+  ]
 }
 
 data "template_file" "orchestrator_setup" {
   template = file("./user_data.txt")
   vars = {
-    instance_username  = var.instance_username
-    instance_password = var.instance_password
-    orchestratorVersion         = var.orchestratorVersion
-    orchestratorFolder          = "C:\\Program Files\\UiPath\\Orchestrator"
-    databaseServerName          = local.sqlserver
-    databaseName                = var.databaseName
-    databaseUserName            = var.databaseUserName
-    databaseUserPassword        = var.databaseUserPassword
-    passphrase                  = var.passphrase
-    orchestratorAdminPassword   = var.orchestratorAdminPassword
+    instance_username         = var.instance_username
+    instance_password         = var.instance_password
+    orchestratorVersion       = var.orchestratorVersion
+    orchestratorFolder        = "C:\\Program Files\\UiPath\\Orchestrator"
+    databaseServerName        = local.sqlserver
+    databaseName              = var.databaseName
+    databaseUserName          = (var.databaseType == "New Paid SQL Server Standard") ? "uipath" : var.databaseUserName
+    databaseUserPassword      = var.databaseUserPassword
+    passphrase                = var.passphrase
+    orchestratorAdminPassword = var.orchestratorAdminPassword
 
   }
 }
@@ -80,15 +84,16 @@ data "template_cloudinit_config" "cloudinit_config" {
 }
 
 module "sqlserver" {
-  source           = "./terraform-modules/sqlserver"
-  compartment_ocid = var.compartment_ocid
-  vm_compute_shape = "VM.Standard2.2"
-  subnet_id = module.default_vcn_plus_subnet.subnet_id
+  source              = "./terraform-modules/sqlserver"
+  compartment_ocid    = var.compartment_ocid
+  vm_compute_shape    = "VM.Standard2.2"
+  subnet_id           = module.default_vcn_plus_subnet.subnet_id
   availability_domain = var.availability_domain_name
-  ssh_public_key = var.ssh_public_key
-  mssql_sa_password = var.databaseUserPassword
-  nsg_id = module.default_network_sec_group.nsg_id
-  type = var.databaseType == "New SQL Server Evaluation" ? "eval" : "paid"
+  ssh_public_key      = var.ssh_public_key
+  mssql_sa_password   = var.databaseUserPassword
+  nsg_id              = module.default_network_sec_group.nsg_id
+  password            = var.orchestratorAdminPassword
+  type                = var.databaseType == "New SQL Server Evaluation" ? "eval" : "paid"
 }
 
 output "orchestrator_url" {

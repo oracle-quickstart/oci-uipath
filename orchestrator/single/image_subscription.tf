@@ -39,7 +39,7 @@ data "oci_core_app_catalog_subscriptions" "mp_image_subscription" {
   listing_id = local.mp_listing_id
 
   filter {
-    name = "listing_resource_version"
+    name   = "listing_resource_version"
     values = [local.mp_listing_resource_version]
   }
 }
