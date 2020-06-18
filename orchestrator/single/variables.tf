@@ -6,17 +6,17 @@
 variable "tenancy_ocid" {
 }
 
-variable "mp_listing_id"{
- default = "ocid1.appcataloglisting.oc1..aaaaaaaari5mnh7pqope3kur7op5xvvt7wappxzqd2vm42u2ygmyfnxt7fzq"
+variable "mp_listing_id" {
+  default = "ocid1.appcataloglisting.oc1..aaaaaaaafd5ljqfswelpeqxdv5gwtwl3uyllgxnm2b4hi6ovwfpgmj77t77a"
 }
 
 variable "mp_listing_resource_id" {
-  default     = "ocid1.image.oc1..aaaaaaaawq2a6pwmu33ro54ct6xsi7f7nyvya5n36rhod6p5prdr2za25eiq"
+  default     = "ocid1.image.oc1..aaaaaaaa3en4cf5bmb3yaxk45xd4f7lvsuhje3ggrl63y7k655czwjsiy4nq"
   description = "Marketplace - Image OCID"
 }
 
 variable "mp_listing_resource_version" {
-  default = "1.0-031820200437"
+  default = "1.0"
 }
 
 variable "use_marketplace_image" {
@@ -81,7 +81,7 @@ variable "passphrase" {
 ############################
 
 variable "vm_compute_shape" {
-  default = "VM.Standard2.4"
+  default     = "VM.Standard2.4"
   description = "Compute Shape"
 }
 
@@ -99,7 +99,7 @@ variable "vcn_id" {
 }
 
 variable "vcn_display_name" {
-  default = "uipath"
+  default     = "uipath"
   description = "VCN Name"
 }
 
@@ -163,6 +163,7 @@ variable "databaseUserName" {
 variable "databaseUserPassword" {
 }
 
-variable "ssh_public_key"{
+variable "ssh_public_key" {
   # Used only for SQL Server evaluation running on OL instance
+  default = ""
 }
