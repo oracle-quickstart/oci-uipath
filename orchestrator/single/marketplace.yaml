@@ -2,8 +2,8 @@
 title: UiPath Orchestrator
 # Sub Title shown in Application Information tab.
 description: UiPath Orchestrator Terraform Deployment
-schemaVersion: 1.1.0
-version: "20190304"
+schemaVersion: 1.3.0
+version: "20200807"
 
 # URL of Logo Icon used on Application Information tab. Logo must be 130x130 pixels.
 # (Optional)
@@ -191,9 +191,9 @@ variables:
       - "New Paid SQL Server Standard"
 
   ssh_public_key:
-    type: string
+    type: oci:core:ssh:publickey
     required: true
-    default: "<paste your key>"
+    default: "<your key>"
     title: SSH Public Key
     description: Used only for SQL Server Evaluation running on Oracle Linux instance
     visible:
