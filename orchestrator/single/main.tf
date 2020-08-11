@@ -100,6 +100,10 @@ output "orchestrator_url" {
   value = join("", ["https://", oci_core_instance.orch-single-instance.public_ip])
 }
 
+output "orchestrator_public_ip" {
+  value = oci_core_instance.orch-single-instance.public_ip
+}
+
 output "orchestrator_private_ip" {
   value = oci_core_instance.orch-single-instance.private_ip
 }

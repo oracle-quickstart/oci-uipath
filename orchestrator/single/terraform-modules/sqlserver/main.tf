@@ -5,12 +5,21 @@ data "oci_core_images" "ol7" {
   sort_order       = "DESC"
   state            = "AVAILABLE"
 
-  # filter restricts to OL 7
   filter {
     name   = "operating_system_version"
     values = ["7\\.[0-9]"]
     regex  = true
   }
+
+  # Restrict to CPU images, which follow naming
+  # convention "Oracle-Linux-7.x-YYYY.MM.DD" 
+  # So this will fail in the year 3000
+  filter {
+    name   = "display_name"
+    values = ["Oracle-Linux-7\\.[0-9]-2"]
+    regex  = true
+  }
+
 }
 
 locals {
