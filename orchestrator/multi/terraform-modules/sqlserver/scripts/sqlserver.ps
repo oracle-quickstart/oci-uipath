@@ -1,0 +1,23 @@
+
+# expects: $UserName, $Password, $DBUser, $DBPassword
+
+$machineName =  "$Env:COMPUTERNAME"
+
+$admin = [ADSI]("WinNT://./$UserName, user")
+$admin.SetPassword("$Password")
+
+write-host "$UserName $DBUser $machineName"
+
+# Change allowed auth modes
+sqlcmd -Q "USE [master]; EXEC xp_instance_regwrite N'HKEY_LOCAL_MACHINE', N'Software\Microsoft\MSSQLServer\MSSQLServer', N'LoginMode', REG_DWORD, 2"
+
+# Create new user and table
+sqlcmd -Q "CREATE DATABASE uipath; CREATE LOGIN uipath WITH PASSWORD = '$DBPassword'; ALTER SERVER ROLE [sysadmin] ADD MEMBER uipath"
+sqlcmd -Q "USE uipath; CREATE USER uipath FOR LOGIN uipath; ALTER USER uipath WITH DEFAULT_SCHEMA=[dbo]; ALTER ROLE [db_owner] ADD MEMBER uipath"
+
+# Open port 1433 in firewall
+netsh advfirewall firewall add rule name = SQLPort dir = in protocol = tcp action = allow localport = 1433 remoteip = localsubnet
+
+# Restart SQL Server
+net stop MSSQLSERVER /y
+net start MSSQLSERVER /y
