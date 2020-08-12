@@ -11,22 +11,22 @@ resource "oci_load_balancer_load_balancer" "test_load_balancer" {
   network_security_group_ids = var.load_balancer_network_security_group_ids
 }
 
-resource "oci_load_balancer_certificate" "test_certificate" {
-  #Required
-  certificate_name = var.certificate_certificate_name
-  load_balancer_id = oci_load_balancer_load_balancer.test_load_balancer.id
-  ca_certificate   = var.ca_certificate
-  # #Optional
-  # ca_certificate = var.certificate_ca_certificate
-  passphrase         = var.certificate_passphrase
-  private_key        = var.certificate_private_key
-  public_certificate = var.certificate_public_certificate
+# resource "oci_load_balancer_certificate" "test_certificate" {
+#   #Required
+#   certificate_name = var.certificate_certificate_name
+#   load_balancer_id = oci_load_balancer_load_balancer.test_load_balancer.id
+#   ca_certificate   = var.ca_certificate
+#   # #Optional
+#   # ca_certificate = var.certificate_ca_certificate
+#   passphrase         = var.certificate_passphrase
+#   private_key        = var.certificate_private_key
+#   public_certificate = var.certificate_public_certificate
 
-  lifecycle {
-    create_before_destroy = true
-  }
+#   lifecycle {
+#     create_before_destroy = true
+#   }
 
-}
+# }
 
 resource "oci_load_balancer_backend_set" "test_backend_set" {
   #Required
@@ -66,11 +66,11 @@ resource "oci_load_balancer_backend_set" "test_backend_set" {
   #     #Optional
   #     disable_fallback = var.backend_set_session_persistence_configuration_disable_fallback
   # }
-  ssl_configuration {
-      #Required
-      certificate_name = oci_load_balancer_certificate.test_certificate.certificate_name
+  # ssl_configuration {
+  #     #Required
+  #     certificate_name = oci_load_balancer_certificate.test_certificate.certificate_name
 
-  }
+  # }
 }
 
 resource "oci_load_balancer_listener" "test_listener" {
@@ -92,8 +92,8 @@ resource "oci_load_balancer_listener" "test_listener" {
   #hostname_names = ["${oci_load_balancer_hostname.test_hostname.name}"]
   #path_route_set_name = "${oci_load_balancer_path_route_set.test_path_route_set.name}"
   #rule_set_names = ["${oci_load_balancer_rule_set.test_rule_set.name}"]
-  ssl_configuration {
-    #Required
-    certificate_name = oci_load_balancer_certificate.test_certificate.certificate_name
-  }
+  # ssl_configuration {
+  #   #Required
+  #   certificate_name = oci_load_balancer_certificate.test_certificate.certificate_name
+  # }
 }

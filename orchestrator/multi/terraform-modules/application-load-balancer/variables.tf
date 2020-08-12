@@ -23,13 +23,13 @@ variable "load_balancer_is_private" {
 variable "load_balancer_network_security_group_ids" {}
  
 
-variable "certificate_certificate_name" {}
+# variable "certificate_certificate_name" {}
 
-variable "certificate_private_key" {}
+# variable "certificate_private_key" {}
 
-variable "certificate_public_certificate" {}
+# variable "certificate_public_certificate" {}
 
-variable "ca_certificate" {}
+# variable "ca_certificate" {}
 
 variable "certificate_passphrase" {
   default = "1234"
@@ -37,7 +37,7 @@ variable "certificate_passphrase" {
 
 
 variable "backend_set_health_checker_protocol" {
-    default = "TCP"
+    default = "HTTP"
 }
 
 variable "backend_set_health_checker_interval_ms" {
@@ -67,7 +67,7 @@ variable "listener_port" {
 
 
 variable "listener_protocol" {
-  default = "http"
+  default = "HTTP"
 }
 
 variable "listener_connection_configuration_idle_timeout_in_seconds" {

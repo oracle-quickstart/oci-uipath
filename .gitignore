@@ -11,3 +11,5 @@
 *.code-workspace
 *.DS_Store
 *scratch*
+provider.tf
+*.pfx

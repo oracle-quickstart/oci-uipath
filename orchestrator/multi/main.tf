@@ -105,10 +105,10 @@ module "lb" {
   source                         = "./terraform-modules/application-load-balancer"
   compartment_id                 = local.compartment_id
   load_balancer_display_name     = var.load_balancer_display_name
-  certificate_certificate_name   = var.certificate_name
-  certificate_private_key        = var.cert_private_key
-  certificate_public_certificate = var.cert_public_key
-  ca_certificate                 = var.ca_certificate
+  # certificate_certificate_name   = var.certificate_name
+  # certificate_private_key        = var.cert_private_key
+  # certificate_public_certificate = var.cert_public_key
+  # ca_certificate                 = var.ca_certificate
   load_balancer_subnet_ids       = [module.default_vcn_plus_subnet.subnet_id]
   load_balancer_network_security_group_ids = [module.default_network_sec_group.nsg_id]
 
