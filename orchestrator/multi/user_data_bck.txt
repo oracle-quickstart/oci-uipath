@@ -1,0 +1,108 @@
+#ps1_sysnative
+    $sLogPath = "C:\temp\"
+    $sLogName = "userDataLog.ps1.log"
+    $sLogFile = Join-Path -Path $sLogPath -ChildPath $sLogName
+    $UserName = "${instance_username}"
+    $Password = '${instance_password}'
+    $localSecurityGroup = "Administrators"
+    $temp = "C:\scripts"
+    $link = "https://raw.githubusercontent.com/tadrian88/scripts/master/Install-Orchestrator.ps1"
+    #$link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-Orchestrator.ps1"
+    $file = "Install-orchestrator.ps1"
+    #TODO remove RootCA.pfx -> will upload it to object storage and dowload it from there
+    $certlink = "https://github.com/tadrian88/scripts/raw/master/RootCA.pfx"
+    $certfile = "RootCA.pfx"
+
+    $tries = 5
+    while ($tries -ge 1) {
+        try {
+            
+            Invoke-WebRequest -Uri $certlink -OutFile "$temp\$certfile"
+            break
+        }
+
+        catch {
+            $tries--
+            Write-Verbose "Exception:"
+            Write-Verbose "$_"
+            if ($tries -lt 1) {
+                throw $_
+            }
+            else {
+                Write-Verbose
+                Log-Write -LogPath $sLogFile -LineValue "Failed downloading RootCA certificate. Retrying again in 5 seconds"
+                Start-Sleep 5
+            }
+        }
+    }
+
+    $cliLink = "https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.ps1"
+    $cliScript = "install.ps1"
+
+    $tries = 5
+    while ($tries -ge 1) {
+        try {
+            
+            Invoke-WebRequest -Uri $cliLink -OutFile "$temp\$cliScript"
+            break
+        }
+        
+        catch {
+            $tries--
+            Write-Verbose "Exception:"
+            Write-Verbose "$_"
+            if ($tries -lt 1) {
+                throw $_
+            }
+            else {
+                Write-Verbose
+                Log-Write -LogPath $sLogFile -LineValue "Failed downloading CLI install script. Retrying again in 5 seconds"
+                Start-Sleep 5
+            }
+        }
+    }
+
+
+    # Create or update existing user
+    try {
+        if ($UserName -eq "opc") {
+            $admin = [ADSI]("WinNT://./$UserName, user")
+            $admin.SetPassword("$Password")
+        } 
+        else {
+            $Computer = [ADSI]"WinNT://$Env:COMPUTERNAME,Computer"
+            $User = $Computer.Create("User", $UserName)
+            $User.SetPassword("$Password")
+            $User.SetInfo()
+            $User.FullName = "$UserName"
+            $User.SetInfo()
+            $User.Put("Description", "UiPath Orchestrator Admin Account")
+            $User.SetInfo()
+            $User.UserFlags = 65536
+            $User.SetInfo()
+            $Group = [ADSI]("WinNT://$Env:COMPUTERNAME/$localSecurityGroup,Group")
+            $Group.add("WinNT://$Env:COMPUTERNAME/$UserName")
+        
+            #Validate whether user account has been created or not
+            if ($users -like $username) {
+                Write-Host "$username has been created on $computer"
+            }
+            else {
+                Write-Host "$username has not been created on $computer"
+            }
+        }
+    }
+
+    Catch {
+        Write-Host "Error creating $username on $($computer.path): $($Error[0].Exception.Message)"
+    }
+    
+
+    New-Item $temp -ItemType directory
+    Set-Location -Path $temp
+    $policylist = Get-ExecutionPolicy -List
+    Write-Host $policylist
+    Set-ExecutionPolicy Unrestricted -Scope Process -Force
+    Invoke-WebRequest -Uri $link -OutFile "$temp\$file"
+    & "$temp\$cliScript" -AcceptAllDefaults
+    & "$temp\$file" -OrchestratorVersion "${orchestratorVersion}" -passphrase '${passphrase}' -databaseServerName  "${databaseServerName}"  -databaseName "${databaseName}"  -databaseUserName "${databaseUserName}" -databaseUserPassword '${databaseUserPassword}' -orchestratorAdminPassword '${orchestratorAdminPassword}' -redisServerHost '${redisServerHost}'

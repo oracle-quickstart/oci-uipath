@@ -55,3 +55,13 @@ terraform destroy
 You'll need to enter `yes` when prompted.  Once complete, you'll see something like this:
 
 ![](./images/05-terraform_destroy.png)
+
+
+### How to base64 encode the your pfx certificate
+
+```
+$pfx_cert = get-content '$certificate' -Encoding Byte
+$base64_cert = [System.Convert]::ToBase64String($pfx_cert)
+```
+
+Please provide base64_cert to the deployment !!!

@@ -113,7 +113,19 @@ param(
   [string] $orchestratorTennant = "Default",
 
   [Parameter()]
-  [string] $orchestratorLicenseCode
+  [string] $orchestratorLicenseCode,
+
+  [Parameter()]
+  [string]
+  $outputParametersFile,
+
+  [Parameter()]
+  [string]
+  $ParametersFile,
+
+  [Parameter()]
+  [string]
+  $QuartzClustered
 
   # [Parameter(Mandatory = $true)]
   # [string] $publicUrl
@@ -300,6 +312,7 @@ function Main {
     "APP_MACHINE_DECRYPTION_KEY"  = "$($getEncryptionKey.DecryptionKey)";
     "APP_MACHINE_VALIDATION_KEY"  = "$($getEncryptionKey.Validationkey)";
     "TELEMETRY_ENABLED"           = "0";
+    "QUARTZ_CLUSTERED"            = "$($QuartzClustered)";
     #"PUBLIC_URL" = "$($publicUrl)";
   }
 
@@ -325,6 +338,19 @@ function Main {
   else {
     $msiProperties += @{"DB_AUTHENTICATION_MODE" = "WINDOWS"; }
   }
+
+  if ($outputParametersFile) {
+    $msiProperties += @{
+      "OUTPUT_PARAMETERS_FILE"      = "$($outputParametersFile)";
+    }
+  }
+  elseif ($ParametersFile) {
+    $msiProperties += @{
+      "PARAMETERS_FILE"      = "$($ParametersFile)";
+    }
+  }
+
+  #TODO add PUBLIC_URL, CERTIFICATE_SUBJECT params; create condition for 19.10.x and 20.4.x
 
   Install-UiPathOrchestratorEnterprise -msiPath "$($tempDirectory)\UiPathOrchestrator.msi" -logPath "$($sLogPath)\InstallOrchestrator.log" -msiFeatures $msiFeatures -msiProperties $msiProperties
 

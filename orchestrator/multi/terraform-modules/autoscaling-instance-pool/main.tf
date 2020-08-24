@@ -1,6 +1,6 @@
 resource "oci_core_instance_pool" "test_instance_pool" {
     #Required
-    #depends_on = [oci_core_instance_configuration.test_instance_configuration]
+    #depends_on = [var.pool_depends_on]
     compartment_id = var.compartment_id
     instance_configuration_id = oci_core_instance_configuration.test_instance_configuration.id
     placement_configurations {
@@ -89,6 +89,15 @@ data "template_file" "orchestrator_setup" {
     passphrase                = var.passphrase
     orchestratorAdminPassword = var.orchestratorAdminPassword
     redisServerHost           = var.redisServerHost
+    mount_target_ip           = var.mount_target_ip
+    nuget_path                = var.nuget_path
+    user_ocid                 = var.user_ocid
+    fingerprint               = var.fingerprint
+    key_file                  = var.key_file
+    tenancy                   = var.tenancy
+    region                    = var.region
+    compartment_id            = var.compartment_id
+    instance_pool_name        = var.instance_pool_display_name
   }
 }
 

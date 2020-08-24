@@ -102,3 +102,21 @@ variable "region" {}
 #variable "publicUrl" {}
 
 variable "redisServerHost" {}
+
+# variable "pool_depends_on" {
+#   type = any
+#   default = null
+# }
+
+variable "nuget_path" {}
+
+variable "mount_target_ip" {}
+
+variable "user_ocid" {}
+
+variable "fingerprint" {}
+
+variable "key_file" {}
+
+variable "tenancy" {}
+

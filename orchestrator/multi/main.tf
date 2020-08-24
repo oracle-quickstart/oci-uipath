@@ -65,6 +65,7 @@ module "default_network_sec_group" {
 
 module "autoscaling_group" {
   source                                                                             = "./terraform-modules/autoscaling-instance-pool"
+  #pool_depends_on                                                                    = module.file_storage.file_storage_export_id
   compartment_id                                                                     = local.compartment_id
   backend_set_name                                                                   = module.lb.test_backend_set_name
   load_balancer_id                                                                   = module.lb.test_load_balancer_id
@@ -83,10 +84,14 @@ module "autoscaling_group" {
   orchestratorAdminPassword                                                          = var.orchestratorAdminPassword
   region                                                                             = var.region
   redisServerHost                                                                    = var.redisServerHost
+  mount_target_ip                                                                    = data.oci_core_private_ip.mount_target_ip.ip_address
+  # nuget_path                                                                         = module.file_storage.path_to_nuget
+  nuget_path                                                                         = var.export_path
+  user_ocid                                                                          = var.user_ocid
+  fingerprint                                                                        = var.fingerprint
+  key_file                                                                           = var.key_file
+  tenancy                                                                            = var.tenancy_ocid
 }
-
-
-
 
 module "sqlserver" {
   source              = "./terraform-modules/sqlserver"
@@ -114,20 +119,22 @@ module "lb" {
 
 }
 
+module "file_storage" {
+  source = "./terraform-modules/file-storage"
+  file_system_availability_domain = var.availability_domain_name
+  compartment_id = local.compartment_id
+  file_system_display_name = var.file_system_display_name
+  mount_target_availability_domain = var.availability_domain_name
+  mount_target_subnet =  module.default_vcn_plus_subnet.subnet_id
+  mount_target_display_name = var.mount_target_display_name
+  export_path = var.export_path
+  export_export_options_source = var.export_source
+  export_export_options_access = var.export_access
+  export_export_options_identity_squash = var.export_identity_squash
+  export_export_options_require_privileged_source_port = var.privileged_source_port
+}
 
-
-# output "orchestrator_url" {
-#   value = join("", ["https://", oci_core_instance.orch-single-instance.public_ip])
-# }
-
-# output "orchestrator_private_ip" {
-#   value = oci_core_instance.orch-single-instance.private_ip
-# }
-
-# output "sqlserver_hostname" {
-#   value = module.sqlserver.sqlserver_hostname
-# }
-
-# output "sqlserver_private_ip" {
-#   value = module.sqlserver.sqlserver_private_ip
-# }
+data "oci_core_private_ip" "mount_target_ip" {
+    #Required
+    private_ip_id = join("", module.file_storage.mount_target_private_ip_ids)
+}

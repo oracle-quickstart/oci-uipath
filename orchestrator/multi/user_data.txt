@@ -1,107 +1,312 @@
 #ps1_sysnative
-    $sLogPath = "C:\temp\"
-    $sLogName = "userDataLog.ps1.log"
-    $sLogFile = Join-Path -Path $sLogPath -ChildPath $sLogName
-    $UserName="${instance_username}"
-    $Password='${instance_password}'
-    $machineName = "$Env:COMPUTERNAME"
-    $localSecurityGroup = "Administrators"
-    $temp = "C:\scripts"
-    $link = "https://raw.githubusercontent.com/tadrian88/scripts/master/Install-Orchestrator.ps1"
-    #$link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-Orchestrator.ps1"
-    $file = "Install-orchestrator.ps1"
+function Log-Start {
 
-    $certlink = "https://github.com/tadrian88/scripts/raw/master/RootCA.pfx"
-    $certfile = "RootCA.pfx"
-       
+    [CmdletBinding()]
+  
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$LogPath,
+  
+        [Parameter(Mandatory = $true)]
+        [string]$LogName,
+  
+        [Parameter(Mandatory = $true)]
+        [string]$ScriptVersion
+    )
+  
+    Process {
+        $sFullPath = $LogPath + "\" + $LogName
+  
+        # Check if file exists and delete if it does
+        if ((Test-Path -Path $sFullPath)) {
+            Remove-Item -Path $sFullPath -Force
+        }
+  
+        # Create file and start logging
+        New-Item -ItemType Directory -Path $LogPath -Force
+        New-Item -Path $LogPath -Name $LogName -ItemType File
+  
+        Add-Content -Path $sFullPath -Value "***************************************************************************************************"
+        Add-Content -Path $sFullPath -Value "Started processing at [$([DateTime]::Now)]."
+        Add-Content -Path $sFullPath -Value "***************************************************************************************************"
+        Add-Content -Path $sFullPath -Value ""
+        Add-Content -Path $sFullPath -Value "Running script version [$ScriptVersion]."
+        Add-Content -Path $sFullPath -Value ""
+        Add-Content -Path $sFullPath -Value "Running with debug mode [$sDebug]."
+        Add-Content -Path $sFullPath -Value ""
+        Add-Content -Path $sFullPath -Value "***************************************************************************************************"
+        Add-Content -Path $sFullPath -Value ""
+  
+        # Write to screen for debug mode
+        Write-Debug "***************************************************************************************************"
+        Write-Debug "Started processing at [$([DateTime]::Now)]."
+        Write-Debug "***************************************************************************************************"
+        Write-Debug ""
+        Write-Debug "Running script version [$ScriptVersion]."
+        Write-Debug ""
+        Write-Debug "Running with debug mode [$sDebug]."
+        Write-Debug ""
+        Write-Debug "***************************************************************************************************"
+        Write-Debug ""
+    }
+  
+}
+function Log-Write {
+  
+    [CmdletBinding()]
+  
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$LogPath,
+  
+        [Parameter(Mandatory = $true)]
+        [string]$LineValue
+    )
+  
+    Process {
+        Add-Content -Path $LogPath -Value $LineValue
+  
+    }
+}
+function Log-Error {
+  
+    [CmdletBinding()]
+  
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$LogPath,
+  
+        [Parameter(Mandatory = $true)]
+        [string]$ErrorDesc,
+  
+        [Parameter(Mandatory = $true)]
+        [boolean]$ExitGracefully
+    )
+  
+    Process {
+        Add-Content -Path $LogPath -Value "Error: An error has occurred [$ErrorDesc]."
+  
+        # Write to screen for debug mode
+        Write-Debug "Error: An error has occurred [$ErrorDesc]."
+  
+        # If $ExitGracefully = True then run Log-Finish and exit script
+        if ($ExitGracefully -eq $True) {
+            Log-Finish -LogPath $LogPath
+            Break
+        }
+    }
+}
+function Log-Finish {
+  
+    [CmdletBinding()]
+  
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$LogPath,
+  
+        [Parameter(Mandatory = $false)]
+        [string]$NoExit
+    )
+  
+    Process {
+        Add-Content -Path $LogPath -Value ""
+        Add-Content -Path $LogPath -Value "***************************************************************************************************"
+        Add-Content -Path $LogPath -Value "Finished processing at [$([DateTime]::Now)]."
+        Add-Content -Path $LogPath -Value "***************************************************************************************************"
+        Add-Content -Path $LogPath -Value ""
+  
+        # Write to screen for debug mode
+        Write-Debug ""
+        Write-Debug "***************************************************************************************************"
+        Write-Debug "Finished processing at [$([DateTime]::Now)]."
+        Write-Debug "***************************************************************************************************"
+        Write-Debug ""
+  
+        # Exit calling script if NoExit has not been specified or is set to False
+        if (!($NoExit) -or ($NoExit -eq $False)) {
+            Exit
+        }
+    }
+}
+function Download-File {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$url,
+  
+        [Parameter(Mandatory = $true)]
+        [string] $outputFile
+    )
     $tries = 5
     while ($tries -ge 1) {
-      try {
+        Try {
+            Log-Write -LogPath $sLogFile -LineValue "Downloading file from $url to local path $outputFile"
+            Invoke-WebRequest -Uri $url -OutFile $outputFile
+            break
+        }
+        Catch {
+            $tries--
+            if ($tries -lt 1) {
+                throw $_
+            }
+            else {
+                Log-Write -LogPath $sLogFile -LineValue "Error message: $($PSItem.Exception.Message)"
+                Start-Sleep 5
+            }
+        }
         
-          Invoke-WebRequest -Uri $certlink -OutFile "$temp\$certfile"
-        }
-        break
-      }
-      catch {
-        $tries--
-        Write-Verbose "Exception:"
-        Write-Verbose "$_"
-        if ($tries -lt 1) {
-          throw $_
-        }
-        else {
-          Write-Verbose
-          Log-Write -LogPath $sLogFile -LineValue "Failed downloading RootCA certificate. Retrying again in 5 seconds"
-          Start-Sleep 5
-        }
-      }
+    }
+}
 
-    $cliLink = "https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.ps1"
-    $cliScript = "install.ps1"
-
-    $tries = 5
-    while ($tries -ge 1) {
-      try {
-        
-          Invoke-WebRequest -Uri $cliLink -OutFile "$temp\$cliScript"
-        }
-        break
-      }
-      catch {
-        $tries--
-        Write-Verbose "Exception:"
-        Write-Verbose "$_"
-        if ($tries -lt 1) {
-          throw $_
-        }
-        else {
-          Write-Verbose
-          Log-Write -LogPath $sLogFile -LineValue "Failed downloading CLI install script. Retrying again in 5 seconds"
-          Start-Sleep 5
-        }
-      }
-
-
-    # Create or update existing user
+function Convert-ToCert {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $base64CertContent,
+        [Parameter(Mandatory = $true)]
+        [string]
+        $FilePath
+    )
     try {
-    if($UserName -eq "opc") {
-    $admin = [ADSI]("WinNT://./$UserName, user")
-    $admin.SetPassword("$Password")
-    } 
-    else {
-    $Computer = [ADSI]"WinNT://$Env:COMPUTERNAME,Computer"
-    $User = $Computer.Create("User", $UserName)
-    $User.SetPassword("$Password")
-    $User.SetInfo()
-    $User.FullName = "$UserName"
-    $User.SetInfo()
-    $User.Put("Description", "UiPath Orchestrator Admin Account")
-    $User.SetInfo()
-    $User.UserFlags = 65536
-    $User.SetInfo()
-    $Group = [ADSI]("WinNT://$Env:COMPUTERNAME/$localSecurityGroup,Group")
-    $Group.add("WinNT://$Env:COMPUTERNAME/$UserName")
+<#         $IsBase64String = @"
+        using System;
+        using System.Net;
+        public static bool IsBase64String(this string $base64CertContent)
+        {
+            $base64CertContent = $base64CertContent.Trim();
+            return ($base64CertContent.Length % 4 == 0) && Regex.IsMatch($base64CertContent, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None);
+
+        }
+"@
+    Add-Type $IsBase64String
+
+    [System]::IsBase64String() #>
+
+        $getString = [System.Convert]::FromBase64String($base64CertContent)
+        [System.Text.Encoding]::UTF8.GetString($getString) | Out-File -Encoding ascii $FilePath  
+        Add-Content -Path $sLogFile -Value "Convert certificate back to file: $FilePath"
+    }
+    catch {
+        Log-Write -LogPath $sLogFile -LineValue "Failed to convert certificate to file. Error message: $($PSItem.Exception.Message)"
+    }
+}
+
+# Set Error Action to Silently Continue
+$ErrorActionPreference = "SilentlyContinue"
+# Log File Info
+$sScriptVersion = "1.0"
+$sLogPath = "C:\temp"
+$sLogName = "userDataPs.log"
+$sLogFile = Join-Path -Path $sLogPath -ChildPath $sLogName
+$UserName = "opc"
+$Password = '1qazXSW@3edc'
+$localSecurityGroup = "Administrators"
+$scriptsFolder = "C:\scripts"
+$installOrchLink = "https://raw.githubusercontent.com/tadrian88/scripts/master/Install-Orchestrator.ps1"
+#$installOrchLink= "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-Orchestrator.ps1"
+$file = "Install-orchestrator.ps1"
+$certlink = "https://github.com/tadrian88/scripts/raw/master/RootCA.pfx"
+$certfile = "RootCA.pfx"
+$cliLink = "https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.ps1"
+$ociCliScript = "install.ps1"
+$oci_private_key = "oci_private_key.pem"
+
+New-Item $scriptsFolder -ItemType directory
+Set-Location -Path $scriptsFolder
+
+function Main {
+    #Define TLS for Invoke-WebRequest
+    $securityProtocol = [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Log-Write -LogPath $sLogFile -LineValue "Security Protocol set to: $securityProtocol"
     
-    #Validate whether user account has been created or not
-    if ($users -like $username) {
-    Write-Host "$username has been created on $computer"
+    Download-File -url $certlink -outputFile "$scriptsFolder\$certfile"
+    Download-File -url $cliLink -outputFile "$scriptsFolder\$ociCliScript"
+    Download-File -url $installOrchLink -outputFile "$scriptsFolder\$file"
+
+    
+
+    Add-Content -Path $sLogFile -Value "Mounting NFS endpoint to N Drive..."
+    try {
+        $cmdCommand = "cmd.exe mount ${mount_target_ip}/${nuget_path} N:"
+        #Invoke-Command -ComputerName localhost -ScriptBlock $cmdCommand
+        #Invoke-Command -ComputerName localhost -ScriptBlock { & cmd /c mount ${mount_target_ip}/${nuget_path} N: }
+        New-PSDrive -Name 'N' -PSProvider 'FileSystem' -Root "\\${mount_target_ip}\${nuget_path}" -Scope 'Global' -Persist
+        Add-Content -Path $sLogFile -Value "Mounting complete"
+    }
+    catch {
+        Log-Write -LogPath $sLogFile -LineValue "Error message: $($PSItem.Exception.Message)"
+    }
+    # $policylist = Get-ExecutionPolicy -List
+    # Write-Host $policylist
+    # Set-ExecutionPolicy Unrestricted -Scope Process -Force
+
+    Convert-ToCert -base64CertContent ${key_file} -FilePath "$scriptsFolder\$oci_private_key"
+    #install oci cli
+    & "$scriptsFolder\$ociCliScript" -AcceptAllDefaults 
+    #create oci config file containing information required to log into Oracle
+    New-Item -Path ~/.oci -ItemType Directory
+    Add-Content -Path $sLogFile -Value "User_ocid is ${user_ocid}"
+    Add-Content -Path $sLogFile -Value "Fingerprint is ${fingerprint}"
+    Add-Content -Path $sLogFile -Value "Key_file content is ${key_file}"
+    Add-Content -Path $sLogFile -Value "tenancy is ${tenancy}"
+    Add-Content -Path $sLogFile -Value "Region is ${region}"
+    $defaultOciProfile = @"
+[marketplace-oci-profile]
+user=${user_ocid}
+fingerprint=${fingerprint}
+key_file=C:\\scripts\\oci_private_key.pem
+tenancy=${tenancy}
+region=${region}
+"@
+    #Create oci config file used
+    $configFile = New-Item -Path ~/.oci -Name "config" -ItemType File -Value $defaultOciProfile
+    Add-Content -Path $sLogFile -Value " Config File $configFile for oci commands was created."
+
+    #Lists the instance pools in the specified compartment and filter to return only resources that match the given display name exactly.
+    $instancePoolJson = oci compute-management instance-pool list --compartment-id ${compartment_id} --display-name ${instance_pool_name} --lifecycle-state "RUNNING" --profile marketplace-oci-profile
+    Add-Content -Path $sLogFile -Value " InstancePool json: $instancePoolJson."
+    $instancePoolData = $instancePoolJson | ConvertFrom-Json
+    $instancePoolId = $instancePoolData.data.id
+    
+    # foreach ( $node in $instancePoolData.data) {
+    #     if ($node."lifecycle-state" -eq "RUNNING") {
+    #         $instancePoolId = $node.id
+    #     }
+    # }
+
+    Add-Content -Path $sLogFile -Value " InstancePoolid is: $instancePoolId."
+    $jsonResult = oci compute-management instance-pool list-instances --compartment-id ${compartment_id} --instance-pool-id $instancePoolId --sort-by "TIMECREATED" --sort-order "DESC" --profile marketplace-oci-profile
+    Add-Content -Path $sLogFile -Value "List instance result: $jsonResult"
+    $VMList = $jsonResult | ConvertFrom-Json
+    #Retrieve the IPs
+    $IPList = $VMList.data."load-balancer-backends"."backend-name"
+    Add-Content -Path $sLogFile -Value "IP list: $IPList"
+    Add-Content -Path $sLogFile -Value "IP0: $($IPList[0])"
+    Add-Content -Path $sLogFile -Value "IP1: $($IPList[1])"
+    
+    #Acquire IPv4 address
+    $HostIP = (Get-NetIPConfiguration | Where-Object {$_.IPv4DefaultGateway -ne $null -and $_.NetAdapter.Status -ne "Disconnected"}).IPv4Address.IPAddress
+    Add-Content -Path $sLogFile -Value "IPv4 address is : $HostIP"
+    if ($IPList[0] -match $HostIP) {
+        Add-Content -Path $sLogFile -Value "This is the primary Orchestrator Node"
+        Add-Content -Path $sLogFile -Value "Installing Orchestrator Primary Node..."
+        & "$scriptsFolder\$file" -OrchestratorVersion "20.4.1" -passphrase '1qazXSW@3edc' -databaseServerName  "10.0.0.2"  -databaseName "uipath"  -databaseUserName "SA" -databaseUserPassword '6yhnMJU&8ik,' -orchestratorAdminPassword '1qazXSW@3edc' -redisServerHost 'dev-env-adi.redis.cache.windows.net:6380,password=xZ3l0vn9F01xwIYeHZzUGlnTFNuIpDJUQZOfbEVBH+0=,ssl=True,abortConnect=False'
+
     }
     else {
-    Write-Host "$username has not been created on $computer"
-    }
-    }
+        Add-Content -Path $sLogFile -Value "This is one of the secondary Orchestrator Nodes"
+        #wait for the primary orchestrator to complete installation and upload parameter.json file to objectStorage"
+        #loop check for the json file; download file locally and install orch
     }
 
-    Catch {
-    Write-Host "Error creating $username on $($computer.path): $($Error[0].Exception.Message)"
-    }
     
+    
+    
+}
+  
+Log-Start -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion
+Main
+Log-Finish -LogPath $sLogFile
 
-    New-Item $temp -ItemType directory
-    Set-Location -Path $temp
-    $policylist = Get-ExecutionPolicy -List
-    Write-Host $policylist
-    Set-ExecutionPolicy Unrestricted -Scope Process -Force
-    Invoke-WebRequest -Uri $link -OutFile "$temp\$file"
-    & "$temp\$cliScript" -AcceptAllDefaults
-    & "$temp\$file" -OrchestratorVersion "${orchestratorVersion}" -passphrase '${passphrase}' -databaseServerName  "${databaseServerName}"  -databaseName "${databaseName}"  -databaseUserName "${databaseUserName}" -databaseUserPassword '${databaseUserPassword}' -orchestratorAdminPassword '${orchestratorAdminPassword}' -redisServerHost '${redisServerHost}'
+

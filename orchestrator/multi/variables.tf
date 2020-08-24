@@ -4,7 +4,7 @@
 #  Hidden Variable Group   #
 ############################
 #TODO remove default value
-# variable "tenancy_ocid" {
+# variable "tenancy" {
 #   default = "ocid1.tenancy.oc1..aaaaaaaa4qmyu4ddxfuvdeqpe5rm6vwgye4iolxvmzyqicmzfc5zmvpcua3q"
 # }
 
@@ -61,7 +61,7 @@ variable "region" {
   type = string
 }
 
-#TODO remove default value
+#TODO remove default value and local value from main.tf
 variable "compartment_ocid" {
   default     = "ocid1.tenancy.oc1..aaaaaaaa4qmyu4ddxfuvdeqpe5rm6vwgye4iolxvmzyqicmzfc5zmvpcua3q"
   description = "Compartment where infrastructure resources will be created"
@@ -143,7 +143,7 @@ variable "subnet_display_name" {
 
 variable "subnet_cidr_block" {
   description = "Subnet CIDR"
-  default     = "10.0.0.0/24"
+  default     = "10.0.0.0/16"
 }
 variable "nsg_display_name" {
   default = ""
@@ -205,4 +205,40 @@ variable "cert_public_key" {
 
 variable "ca_certificate" {
   default = "-----BEGIN CERTIFICATE-----\nMIIFDTCCAvWgAwIBAgIQHYn7YKkK55tEEn5Y9mWiFTANBgkqhkiG9w0BAQsFADAf\nMR0wGwYDVQQDDBRVaVBhdGhTZWxmU2lnbmVkUm9vdDAeFw0yMDA3MjkxMTAwMTJa\nFw00MDA3MjkxMTEwMDhaMB8xHTAbBgNVBAMMFFVpUGF0aFNlbGZTaWduZWRSb290\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAtho5FbLTQDFtkSlkCIGc\nOJRWUD1xhS0E3j0Jdkx8RV9fEs0qXh7a3UzM/i4uMY9HNJXOzS1wncc8qyCNp+DR\nmn4qOXGds42lLqH0Mv30IBkteUWADReRM+lZB6Jyp8m77ZMRakHJtCbLlLeJXm3s\nS9i2QFGvkHreSIrlfC/Xh9Y67LsSia8lQCgYdOY4G5UTMxrNNpbY5CMKsgXbjh4j\ndEobcCcXNHKvXjexx2sYA1jtVxfPG+VkGoWaLd4wMu9heuUeAOl7JNBCy9I2ZedJ\nbArdyN+CcTUo82FfUUhVoLfI9iC892yhpDDL72wEpA8pa+Qm/tZCkVU4VNOWRLah\n9vJd5VS5QP40lLsyTdvVQjDD+Pk20Hoa57i1yvehwbDkXQ4e14Zg1TLxaTRTfKQQ\nYFW6tCbuzTsJb38VfWYc+Ie8oz6Cgf08D0c/tP/n8CgpffeEkxsg8+VFE1o9rImd\nJ3KmmvKm51BLZcj9860cTxQgXQrcBtLE+SUz15OcoLBguurwPtdhyO/LqJUjwgnk\nMF4B+vvBUDVjKbawbuRfkW9vcQjsDFjP35SpUPnpVW4J0X1YRQQFBislpOaA1k2u\nnu/MbV4JWNYzawYMbFKBwl7mej8D/42xn7ASIUfTGxS1am3ZrDesNhYy4gfvXzof\nMbrktrwklQpGUN7Or7ytTo0CAwEAAaNFMEMwDgYDVR0PAQH/BAQDAgIEMBIGA1Ud\nEwEB/wQIMAYBAf8CAQMwHQYDVR0OBBYEFO/qEsxoKUcF5sVwagbnZfuNr07vMA0G\nCSqGSIb3DQEBCwUAA4ICAQA4m5sQJDY9IYDjgi/j/vjRBw3Ui8ofQy9i3JnojMTb\nDoew9sl06RgYnLl34/g0JXiNA+haPQKWMW6/SEpWSQ+tAlyXDiwKlffXJ389iT0m\nWkK3vNvuOHgGXL9wRhvxgNmiw0i1huTpwjz717AH+L+sxpT6wPJeA6u9g+T2AJ8+\nO0g55xjjcz/p5kE5FoWynKLObL5hZ3zsFDRH6rqdjI65aq6Gt1kFhNfC2JNZ4z0c\nDLKrUr/+axvTf6cqXHvyURM5Z7XUfl0wxsIr9S0CRrGHrCsCbwXMsYUa7dcY6f8w\nLBMAuNw0EjPOhxwcwBgCwATyuVMifYyq0IWV0TS6znABm340S4NDZJqUWFlWDmps\nhSmS1P6stkZZ1gnqLm4v9wuAdWo6a3sBWba9SfIjoFnA9rrE4xTsbrDvV/hilaK7\niiuFlvp1gUefgfF3n5pkOx8bEaBk96dg9ijMn+k4Ec7i+U73rD49iAuGznLooW5G\n2trj2BeVFWo2biQg/DZGq7E7uDNCA9ouQr5CMBJnx77A5HvUQYy/Uw+KiEZn10mr\nHcHSxe+87DpW7H6mUTbYQd+rfXy8adgpXqXhldxkBp8fWLvVV+hwl5mrphbbA3BT\nd7GyUU+iyveqj71l3VCovkT9c8FVZvZqhz48eeo5kjk2XBuSh15nwaOjybs/5yoh\nCQ==\n-----END CERTIFICATE-----"
+}
+
+#######File storage module variables############
+variable "file_system_display_name" {
+  default     = "orchestrator_nuget"
+}
+
+variable "mount_target_display_name" {
+  default     = "nuget_mount_target"
+}
+
+variable "export_path" {
+  default     = "/nugetpackages"
+}
+
+variable "export_source" {
+  default     = "10.0.0.0/16"
+}
+
+variable "export_access" {
+  default     = "READ_WRITE"
+}
+
+variable "export_identity_squash" {
+  default     = "NONE"
+}
+
+variable "privileged_source_port" {
+  default     = "false"
+}
+
+#TODO when adding this variable in marketplace.yaml, need to validate base64String; add pattern=^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
+variable "key_file" {
+  
+  description = "PEM private key"
+  default     = "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQ0KTUlJRW9nSUJBQUtDQVFFQW0zN0R1Kzg0N0JlOTdQU0xvb1VoNENGTkFaTVo5MUJ6N1J3d09yWEhDNjlDSGtFSG84aEFoZUZETktIRg0KWFFqdkhDcGJUUmZFb0ttY01CRGc0eGtnN0NBdVVQTDlkVTduOWxXMENtdjhKUHlaWEJ4OUkwc0hlekpuc0xFNFlmaE5Ua3ZVbDV5bA0KNzA0d3BpMkM3dVFGQkw2SkJZaE4zMHJFT2gwSHZHUi9rZkttT2NDMEJROWFVcmg5VjhTcGt6SjNyaWFPNW9ORFJqcExya1I2cDFtZQ0KRWM0K2gyemFMNlJ3ckN3TEVHc1YwOHdpSnVuaWtpQ0ZqeXdVdW0vcXk2YzE3NEgwUUQ5VXh4bTFaUGxyd01Hb3NxTTNpeEFzZk9BeQ0Ka20rSDB5U0lIZ1BrYzd3YXhnRkRZdWh6QllXcTQ5Z3h5djk2SEZGa1Azd3Jnbm9JWU82c013SURBUUFCQW9JQkFHT2t0eStlbS82SA0KTkZrOVdLSGI2SnBsSEtET3NFd1F6VWo3MEZnL0ZuK0JYc0JlY2RQZHhxTkVlRG1wRlAyS2RSZTZlT21OT3A2dU1mMkhRMldrTzdtMA0KNFpsVUxXSFlIOE4ycGpvcmV0Z0UydzN3MzZ3WEw0TWVDTjVzb3JIOVdTUzhhVTZDdnI3OGZ5WnVjY0krY296WXdKdS8vZzhDTFg4RQ0KRFdvSGlNeHdEa1B4Ny91MVdZNUZMY3B2bjk1QlpkWmNINmtZWld1N1RsU2FLM0E2cVljajRNY2JlcU1aODNLWFZmc1o0azY1WnFYMw0KTHBWemNYeENhaGdMcFhSVlNFRzVoODlscVR1NWROZUZKc1BDTEtaekppbHJyaDdDbVo4TkNra0R4OVJsVkpUZkdNOVNuZFhVN3lxNQ0KeUZIcHQ2aXkyUmd6T2kwVDlQWVprU1hOVGVrQ2dZRUEzWDhLTUd3ZDBUVkpXYm5hWVBPOHJmWFgwVXd1K0wwSmcrSW9FV0RVNERodg0KUk5PNjlLTWZMWElUVmNaQ2xrU0Y3YklFeXk2RUMvbyt2SUpXMTFmY3Q4ZmRrQTVSMlBYRThCamd6RGJKVmFETTJzQUthVFdVVEhweQ0KMktkeTdFTVErOXBrT0lqTi90a3VqQTJiaWF5U2RpdzVzSVlJczJoWHBKckhlclNzbWgwQ2dZRUFzN2V4d1BiNUsvL3g1QldBNzdmZA0KbGFQV3F2M040TjlxWHp1UlBBeWFXSjBGZDQ4MFkyaXBoMHpVY0hGR1k1T3FOdC9Xb3BxMXVUMmRBZkFycTd3TGE1bCtDazExZmhucQ0KQ2NCMmJ4S2lxTlQ5MXlYbDFKTkpidzg4V0czTkM5L1h1L1dLMVZUN3BNeFNwRHFkSGVJb2hOa1pXU1BPSkIwamRESjFLeURERG84Qw0KZ1lBOHhpVEhrSUxGNm5jTDFZRGo1VHk2QnFDRzN2NXNaWUg4MjhyZXFkRC9ETDBMQjRWZXBudGhmdEZyVVpEbnBqbVJOSzA0Q3JWVQ0KaS84MnZoU1IxWnZNR1Z6anIrb3BPNVlqd3MrN2VMVFpkOXQ5a2YvSlNsZzhlOFNUU2E2d3dONGlISlF2SnVwT3FNeXF4UGtPVjNtQQ0KVHpZdEJ6blA4Q3RNRU9QMitTZjZ5UUtCZ0R3TW92NUJCNXptRm1NSnRGMWs2RXM1eFY2NUUzT1I4eThDN2xKTU83NWtLUkY3N2h0Ug0KTzJRVURkL01XYUtvRW5YbmNRWS8vM3gzMCtCejZZT21mNEppZFRUb0VOd2p1SW10bjJVWnF2UVN4d1oraVQ3d1A5YzJGZ25PRm5kag0KUWVoeDhRTzdNNklyQzJvSWs3c0tlRk43WHZiaitkc2pTVmRvRExKdWJmNk5Bb0dBQXlsbGZ6cjBHNXNpMldQS1g3bzNuRUtZWXdjVg0KRVA2Y1I1blFlL044dWM0RkN2QmRocFRhQ3BzK3h5cFlhYzZuVHBvdHloN1ViZ0kzK3ZwSGo2a2hzeFlYdjVUTm9taGtyRk12c3o1SQ0KNEthTGtjZHBmbDcwTHBLZVIyV1ZpMWVtdmRQbFNzZDZkRjZENkx1a21qdDAxRkpOYVJIOWRDL0RRRmtoVUo4SHJTcz0NCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0t"
 }

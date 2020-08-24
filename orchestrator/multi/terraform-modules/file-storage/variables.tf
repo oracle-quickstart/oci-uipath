@@ -1,0 +1,11 @@
+variable "file_system_availability_domain" {}
+variable "compartment_id" {}
+variable "file_system_display_name" {}
+variable "mount_target_availability_domain" {}
+variable "mount_target_subnet" {}
+variable "mount_target_display_name" {}
+variable "export_path" {}
+variable "export_export_options_source" {}
+variable "export_export_options_access" {}
+variable "export_export_options_identity_squash" {}
+variable "export_export_options_require_privileged_source_port" {}
