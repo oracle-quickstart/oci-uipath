@@ -3,9 +3,10 @@
     $Password='${instance_password}'
     $machineName =  "$Env:COMPUTERNAME"
     $temp = "C:\scripts"
-    $link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-Orchestrator.ps1"
-    $file = "Install-orchestrator.ps1"
-
+    #TODO update link below to point to Oracle github repo
+    $linkToInstallOrchPs1 = "https://raw.githubusercontent.com/tadrian88/scripts/master/SingleInstall-Orchestrator.ps1"
+    $InstallOrchPs1 = "Install-orchestrator.ps1"
+    
     # Create or update existing user
     if($UserName -eq "opc") {
     $admin = [ADSI]("WinNT://./$UserName, user")
@@ -17,12 +18,11 @@
     $User.SetInfo()
     $User.FullName = "$UserName"
     $User.SetInfo()
-    $User.Put("Description", "UiPath Robot Admin Account")
+    $User.Put("Description", "UiPath Orch Admin Account")
     $User.SetInfo()
     $User.UserFlags = 65536
     $User.SetInfo()
-    $Group = [ADSI]("WinNT://$Env:COMPUTERNAME/$localRobotRole,Group")
-    $Group.add("WinNT://$Env:COMPUTERNAME/$UserName")
+    Add-LocalGroupMember -Group "Remote Desktop Users" -Member $UserName
     }
 
     New-Item $temp -ItemType directory
@@ -30,5 +30,5 @@
     $policylist = Get-ExecutionPolicy -List
     Write-Host $policylist
     Set-ExecutionPolicy Unrestricted -Scope Process -Force
-    Invoke-WebRequest -Uri $link -OutFile "$temp\$file"
-    & "$temp\$file" -OrchestratorVersion "${orchestratorVersion}" -passphrase '${passphrase}' -databaseServerName  "${databaseServerName}"  -databaseName "${databaseName}"  -databaseUserName "${databaseUserName}" -databaseUserPassword '${databaseUserPassword}' -orchestratorAdminPassword '${orchestratorAdminPassword}'
+    Invoke-WebRequest -Uri $linkToInstallOrchPs1 -OutFile "$temp\$InstallOrchPs1"
+    & "$temp\$InstallOrchPs1" -OrchestratorVersion "${orchestratorVersion}" -passphrase '${passphrase}' -databaseServerName  "${databaseServerName}"  -databaseName "${databaseName}"  -databaseUserName "${databaseUserName}" -databaseUserPassword '${databaseUserPassword}' -orchestratorAdminPassword '${orchestratorAdminPassword}' -certificatePass '${certificatePass}' -certificateBase64 '${certificateBase64}' -ISCertificatePass '${ISCertificatePass}' -ISCertificateBase64 '${ISCertificateBase64}'
