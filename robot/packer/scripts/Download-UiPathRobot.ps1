@@ -7,7 +7,7 @@ $sLogFile = Join-Path -Path $sLogPath -ChildPath $sLogName
 $script:tempDirectory = (Join-Path $ENV:TEMP "UiPath-$(Get-Date -f "yyyyMMddhhmmssfff")")
 $logPath = Join-Path $script:tempDirectory "install.log"
 
-$UiPathRobotVersions = "19.10.4", "19.4.5", "18.4.7"
+$UiPathRobotVersions = "20.4.3","19.10.5","18.4.8"
 
 function Main {
 

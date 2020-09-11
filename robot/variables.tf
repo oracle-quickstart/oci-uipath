@@ -6,12 +6,12 @@
 variable "tenancy_ocid" {
 }
 
-variable "mp_listing_id"{
- default = "ocid1.appcataloglisting.oc1..aaaaaaaari5mnh7pqope3kur7op5xvvt7wappxzqd2vm42u2ygmyfnxt7fzq"
+variable "mp_listing_id" {
+  default = "ocid1.appcataloglisting.oc1..aaaaaaaari5mnh7pqope3kur7op5xvvt7wappxzqd2vm42u2ygmyfnxt7fzq"
 }
 
 variable "mp_listing_resource_id" {
-  default     = "ocid1.image.oc1..aaaaaaaawq2a6pwmu33ro54ct6xsi7f7nyvya5n36rhod6p5prdr2za25eiq"
+  default     = "ocid1.image.oc1.iad.aaaaaaaar32ruyuz57xihpizg6he7ae24ma33iuz523q2l2xainewpkb5dyq"
   description = "Marketplace - Image OCID"
 }
 
@@ -69,25 +69,29 @@ variable "compartment_ocid" {
 #  Orchestrator Connection Info   #
 ############################
 
-variable "orchestrator_url" {
-}
-variable "orchestrator_admin" {
-}
+variable "orchestrator_url" {}
 
-variable "orchestrator_adminpw" {
-}
+variable "orchestrator_admin" {}
 
-variable "orchestrator_tennant" {
-}
+variable "orchestrator_adminpw" {}
 
-variable "robot_type" {
-}
+variable "orchestrator_tennant" {}
 
-variable "robot_version" {
-}
+variable "robot_type" {}
 
-variable "addRobotToExistingEnvs" {
-}
+variable "robot_version" {}
+
+variable "is_orchestrator_certificate_trusted" {}
+
+variable "orchCertificateBase64" {}
+
+variable "orchCertificatePass" {}
+
+variable "is_orchestrator_dns_resolvable" {}
+
+variable "orchestratorIP" {}
+
+variable "orchestratorHostname" {}
 
 
 ############################
@@ -95,7 +99,7 @@ variable "addRobotToExistingEnvs" {
 ############################
 
 variable "vm_compute_shape" {
-  default = "VM.Standard2.4"
+  default     = "VM.Standard2.2"
   description = "Compute Shape"
 }
 
@@ -113,7 +117,7 @@ variable "vcn_id" {
 }
 
 variable "vcn_display_name" {
-  default = "uipath"
+  default     = "uipath"
   description = "VCN Name"
 }
 

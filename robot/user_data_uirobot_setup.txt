@@ -1,16 +1,9 @@
 #ps1_sysnative
     $UserName="${instance_username}"
     $Password="${instance_password}"
-    $machineName =  "$Env:COMPUTERNAME"
     $temp = "C:\scripts"
     $link = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/robot/packer/scripts/Install-UiPathRobot.ps1"
     $file = "Install-UiRobot.ps1"
-
-    # create Robot local user
-    $robotRole = "${robot_local_account_role}"
-    if($robotRole -eq "localuser") {
-    $localRobotRole = "Remote Desktop Users"
-    } else { $localRobotRole = "Administrators" }
 
     # Create or update existing user
     if($UserName -eq "opc") {
@@ -27,7 +20,7 @@
     $User.SetInfo()
     $User.UserFlags = 65536
     $User.SetInfo()
-    $Group = [ADSI]("WinNT://$Env:COMPUTERNAME/$localRobotRole,Group")
+    $Group = [ADSI]("WinNT://$Env:COMPUTERNAME/Administrators,Group")
     $Group.add("WinNT://$Env:COMPUTERNAME/$UserName")
     }
 
@@ -36,5 +29,35 @@
     $policylist = Get-ExecutionPolicy -List
     Write-Host $policylist
     Set-ExecutionPolicy Unrestricted -Scope Process -Force
+
+    if ("${is_orchestrator_dns_resolvable}" -match "No") {
+
+        #Adding Orchestrator IP for hostname to hosts file
+        $hostsFilePath = "$($Env:WinDir)\system32\Drivers\etc\hosts"
+        $hostsFile = Get-Content $hostsFilePath
+
+        Write-Host "About to add ${orchestratorIP} for ${orchestratorHostname} to hosts file" -ForegroundColor Gray
+
+        $escapedHostname = [Regex]::Escape("${orchestratorHostname}")
+        $CheckHostnameOnly = $false
+        $patternToMatch = If ($CheckHostnameOnly) { ".*\s+$escapedHostname.*" } Else { ".*${orchestratorIP}\s+$escapedHostname.*" }
+        If (($hostsFile) -match $patternToMatch)  {
+            Write-Host ${orchestratorIP}.PadRight(20," ") "${orchestratorHostname} - not adding; already in hosts file" -ForegroundColor DarkYellow
+        } 
+        Else {
+            Write-Host ${orchestratorIP}.PadRight(20," ") "${orchestratorHostname} - adding to hosts file... " -ForegroundColor Yellow -NoNewline
+            Add-Content -Encoding UTF8  $hostsFilePath ("${orchestratorIP}".PadRight(20, " ") + "${orchestratorHostname}")
+            Write-Host " done"
+        }
+    }
+
+    if ("${is_orchestrator_certificate_trusted}" -match "No") {
+
+        $userCertificatePass = "${orchCertificatePass}" | ConvertTo-SecureString -AsPlainText -Force
+        $rawByteCert = [System.Convert]::FromBase64String("${orchCertificateBase64}")
+        [io.file]::WriteAllBytes("$temp\orchestratorCert.pfx", $rawByteCert)
+        Import-PfxCertificate -FilePath "$temp\orchestratorCert.pfx" -CertStoreLocation Cert:\LocalMachine\Root -Password $userCertificatePass
+    }
+
     Invoke-WebRequest -Uri $link -OutFile "$temp\$file"
-    & "$temp\$file" -orchestratorUrl "${orchestrator_url}" -Tennant "${orchestrator_tennant}" -orchAdmin "${orchestrator_admin}" -orchPassword "${orchestrator_adminpw}" -adminUsername "$UserName" -machinePassword "$Password" -HostingType "Standard"  -credType "Default" -RobotType "${robot_type}" -RobotVersion "${robot_version}" -addRobotsToExistingEnvs "${addRobotToExistingEnvs}"
+    & "$temp\$file" -orchestratorUrl "${orchestrator_url}" -Tennant "${orchestrator_tennant}" -orchAdmin "${orchestrator_admin}" -orchPassword '${orchestrator_adminpw}' -adminUsername "$UserName" -machinePassword "$Password" -HostingType "Standard"  -credType "Default" -RobotType "${robot_type}" -RobotVersion "${robot_version}"
