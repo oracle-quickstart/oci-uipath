@@ -22,7 +22,7 @@ Param (
     [AllowEmptyString()]
     [string] $credType,
     [Parameter(Mandatory = $true)]
-    [ValidateSet("20.4.3","19.10.5","19.4.6","18.4.8")]
+    [ValidateSet("20.4.3","19.10.5","18.4.8")]
     [String] $RobotVersion
 )
 
