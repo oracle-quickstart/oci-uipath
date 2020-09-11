@@ -67,7 +67,10 @@ data "template_file" "orchestrator_setup" {
     databaseUserPassword      = var.databaseUserPassword
     passphrase                = var.passphrase
     orchestratorAdminPassword = var.orchestratorAdminPassword
-
+    certificateBase64         = var.certificateBase64
+    certificatePass           = var.certificatePass
+    ISCertificateBase64       = var.ISCertificateBase64
+    ISCertificatePass         = var.ISCertificatePass
   }
 }
 

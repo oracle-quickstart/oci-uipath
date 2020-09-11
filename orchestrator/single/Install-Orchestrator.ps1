@@ -6,7 +6,7 @@
       Install UiPath Orchestrator and configure web.config based on a passphrase.
 
     .PARAMETER orchestratorVersion
-      String. Allowed versions: FTS 20.4.1 and FTS 19.10.5 Version of the Orchestrator which will be installed. Example: $orchestratorVersion = "19.4.3"
+      String. Allowed versions: FTS 20.4.3 and LTS 19.10.19 Version of the Orchestrator which will be installed. Example: $orchestratorVersion = "19.10.19"
 
     .PARAMETER orchestratorFolder
       String. Path where Orchestrator will be installed. Example: $orchestratorFolder = "C:\Program Files\UiPath\Orchestrator"
@@ -58,8 +58,8 @@
 param(
 
     [Parameter()]
-    [ValidateSet('19.10.19','20.4.1')]
-    [string] $orchestratorVersion = "20.4.1",
+    [ValidateSet('19.10.19','20.4.3')]
+    [string] $orchestratorVersion = "20.4.3",
 
     [Parameter()]
     [string] $orchestratorFolder = "${env:ProgramFiles(x86)}\UiPath\Orchestrator",
@@ -113,7 +113,23 @@ param(
     [string] $orchestratorTennant = "Default",
 
     [Parameter()]
-    [string] $orchestratorLicenseCode
+    [string] $orchestratorLicenseCode,
+
+    [Parameter()]
+    [string] 
+    $ISCertificateBase64,
+
+    [Parameter()]
+    [string] 
+    $ISCertificatePass,
+
+    [Parameter()]
+    [string]
+    $certificateBase64,
+
+    [Parameter()]
+    [string] 
+    $certificatePass
 
 )
 #Enable TLS12
@@ -142,7 +158,7 @@ function Main {
 
         $source = @()
         $source += "https://download.uipath.com/versions/$orchestratorVersion/UiPathOrchestrator.msi"
-        $source += "https://download.microsoft.com/download/C/9/E/C9E8180D-4E51-40A6-A9BF-776990D8BCA9/rewrite_amd64.msi"
+        $source += "https://download.microsoft.com/download/1/2/8/128E2E22-C1B9-44A4-BE2A-5859ED1D4592/rewrite_amd64_en-US.msi"
         $source += "https://download.microsoft.com/download/6/E/4/6E48E8AB-DC00-419E-9704-06DD46E5F81D/NDP472-KB4054530-x86-x64-AllOS-ENU.exe"
         $source += "https://download.visualstudio.microsoft.com/download/pr/ff658e5a-c017-4a63-9ffe-e53865963848/15875eef1f0b8e25974846e4a4518135/dotnet-hosting-3.1.3-win.exe"
         $tries = 5
@@ -212,68 +228,142 @@ function Main {
     }
 
     #install URLrewrite
-    Install-UrlRewrite -urlRWpath "$tempDirectory\rewrite_amd64.msi"
+    Install-UrlRewrite -urlRWpath "$tempDirectory\rewrite_amd64_en-US.msi"
 
     # install .Net 4.7.2
     Install-DotNetFramework -dotNetFrameworkPath "$tempDirectory\NDP472-KB4054530-x86-x64-AllOS-ENU.exe"
 
-    # ((Invoke-WebRequest -Uri http://169.254.169.254/latest/meta-data/public-hostname -UseBasicParsing).RawContent -split "`n")[-1]
+    Write-Output "$(Get-Date) Installing self signed certificate for IIS, exporting and importing to LocalMachine My Store"
 
-    $cert = New-SelfSignedCertificate -DnsName "$env:COMPUTERNAME", "$orchestratorHostname" -CertStoreLocation cert:\LocalMachine\My -FriendlyName "Orchestrator Self-Signed certificate" -KeySpec Signature -HashAlgorithm SHA256 -KeyExportPolicy Exportable  -NotAfter (Get-Date).AddYears(20)
+    if (!$certificateBase64 -and !$ISCertificateBase64) {
 
-    $thumbprint = $cert.Thumbprint
+      $useSelfSigned = $True
 
-    Export-Certificate -Cert cert:\localmachine\my\$thumbprint -FilePath "$($tempDirectory)\OrchPublicKey.cer" -force
+      $installCert = New-SelfSignedCertificate -Subject "CN=$orchestratorHostname" `
+        -DnsName "$orchestratorHostname" `
+        -Type SSLServerAuthentication `
+        -KeyExportPolicy Exportable `
+        -FriendlyName "Orchestrator Self-Signed SSL Certificate" `
+        -HashAlgorithm sha256 -KeyLength 2048 `
+        -NotAfter (Get-Date).AddYears(20) `
+        -CertStoreLocation "cert:\LocalMachine\My" `
+    
+      $SelfSignedThumbprint = $installCert.Thumbprint
 
-    Import-Certificate -FilePath "$($tempDirectory)\OrchPublicKey.cer" -CertStoreLocation "cert:\LocalMachine\Root"
+      $mypwd = ConvertTo-SecureString -String "1234sslcert" -Force -AsPlainText
 
-    #install Orchestrator
+      Export-PfxCertificate -Cert cert:\LocalMachine\my\$SelfSignedThumbprint -FilePath "$tempDirectory\UiPathSSLCertificate.pfx" -NoProperties -Password $mypwd
 
-    $getEncryptionKey = Generate-Key -passphrase $passphrase
+      Import-PfxCertificate -FilePath "$tempDirectory\UiPathSSLCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\Root -Password $mypwd
+
+    }
+    
+    elseif(!$certificateBase64) {
+
+      $installSslCert = New-SelfSignedCertificate -Subject "CN=$orchestratorHostname" `
+        -DnsName "$orchestratorHostname" `
+        -Type SSLServerAuthentication `
+        -KeyExportPolicy Exportable `
+        -FriendlyName "Orchestrator Self-Signed SSL Certificate" `
+        -HashAlgorithm sha256 -KeyLength 2048 `
+        -NotAfter (Get-Date).AddYears(20) `
+        -CertStoreLocation "cert:\LocalMachine\My" `
+    
+      $sslSelfSignedThumbprint = $installSslCert.Thumbprint
+
+      $mypwd = ConvertTo-SecureString -String "1234sslcert" -Force -AsPlainText
+
+      Export-PfxCertificate -Cert cert:\LocalMachine\my\$SelfSignedThumbprint -FilePath "$tempDirectory\UiPathSSLCertificate.pfx" -NoProperties -Password $mypwd
+
+      Import-PfxCertificate -FilePath "$tempDirectory\UiPathSSLCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\Root -Password $mypwd  
+
+      $userISCertificatePass = $($ISCertificatePass) | ConvertTo-SecureString -AsPlainText -Force
+      ConvertBase64StringToPfxCertificate -base64String $ISCertificateBase64 -pfxCertificateName "userIsCertificate.pfx"
+
+      #TODO Remove import to root Store when production ready
+      Import-PfxCertificate -FilePath "$tempDirectory\userIsCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\Root -Password $userISCertificatePass
+      $userIsCert = Import-PfxCertificate -FilePath "$tempDirectory\userIsCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\My -Password $userISCertificatePass
+      $userIsThumbprint = $userIsCert.Thumbprint
+
+    }
+    elseif (!$ISCertificateBase64) {
+      #generate new self signed certificate for Identity Server
+      $installIsCert = New-SelfSignedCertificate -Subject "CN=$orchestratorHostname" `
+        -DnsName "$orchestratorHostname" `
+        -Type SSLServerAuthentication `
+        -KeyExportPolicy Exportable `
+        -FriendlyName "Orchestrator Self-Signed SSL Certificate" `
+        -HashAlgorithm sha256 -KeyLength 2048 `
+        -NotAfter (Get-Date).AddYears(20) `
+        -CertStoreLocation "cert:\LocalMachine\My" `
+        -KeySpec KeyExchange
+    
+      $isSelfSignedThumbprint = $installIsCert.Thumbprint
+
+      $mypwd = ConvertTo-SecureString -String "1234sslcert" -Force -AsPlainText
+
+      Export-PfxCertificate -Cert cert:\LocalMachine\my\$isSelfSignedThumbprint -FilePath "$tempDirectory\UiPathISCertificate.pfx" -NoProperties -Password $mypwd
+
+      Import-PfxCertificate -FilePath "$tempDirectory\UiPathISCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\Root -Password $mypwd
+
+      $userCertificatePass = $($certificatePass) | ConvertTo-SecureString -AsPlainText -Force
+      ConvertBase64StringToPfxCertificate -base64String $certificateBase64 -pfxCertificateName "userSslCertificate.pfx"
+
+      #TODO Remove import to root Store when production ready
+      Import-PfxCertificate -FilePath "$tempDirectory\userSslCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\Root -Password $userCertificatePass
+      $userSslCert = Import-PfxCertificate -FilePath "$tempDirectory\UiPathSSLCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\My -Password $userCertificatePass
+      $userSslthumbprint = $userSslCert.Thumbprint
+    }
+    else {
+      
+      $userCertificatePass = $($certificatePass) | ConvertTo-SecureString -AsPlainText -Force
+      ConvertBase64StringToPfxCertificate -base64String $certificateBase64 -pfxCertificateName "userSslCertificate.pfx"
+
+      #TODO Remove import to root Store when production ready
+      Import-PfxCertificate -FilePath "$tempDirectory\userSslCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\Root -Password $userCertificatePass
+      $userSslCert = Import-PfxCertificate -FilePath "$tempDirectory\UiPathSSLCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\My -Password $userCertificatePass
+      $userSslthumbprint = $userSslCert.Thumbprint
+
+      $userISCertificatePass = $($ISCertificatePass) | ConvertTo-SecureString -AsPlainText -Force
+      ConvertBase64StringToPfxCertificate -base64String $ISCertificateBase64 -pfxCertificateName "userIsCertificate.pfx"
+
+      #TODO Remove import to root Store when production ready
+      Import-PfxCertificate -FilePath "$tempDirectory\userIsCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\Root -Password $userISCertificatePass
+      $userIsCert = Import-PfxCertificate -FilePath "$tempDirectory\userIsCertificate.pfx" -CertStoreLocation Cert:\LocalMachine\My -Password $userISCertificatePass
+      $userIsThumbprint = $userIsCert.Thumbprint
+    }
+
+    #install Orchestrator Feature no matter the version
 
     $msiFeatures = @("OrchestratorFeature")
 
-    if ($orchestratorVersion.StartsWith("2")) {
-
-        $msiFeatures += @("IdentityFeature")
-        
-        try {
-          
-          Install-DotNetHostingBundle -DotNetHostingBundlePath "$tempDirectory\dotnet-hosting-3.1.3-win.exe"
-          
-        }
-        catch {
-          Write-Error $_.exception.message
-          Log-Error -LogPath $sLogFile -ErrorDesc "$($_.exception.message) installing Dotnet hosting" -ExitGracefully $True
-      }
-
-    }
+    $getEncryptionKey = Generate-Key -passphrase $passphrase
 
     $msiProperties = @{ }
     $msiProperties += @{
-        "ORCHESTRATORFOLDER"          = "`"$($orchestratorFolder)`"";
-        "DB_SERVER_NAME"              = "$($databaseServerName)";
-        "DB_DATABASE_NAME"            = "$($databaseName)";
-		    "HOSTADMIN_PASSWORD"          = "$($orchestratorAdminPassword)";
-        "DEFAULTTENANTADMIN_PASSWORD" = "$($orchestratorAdminPassword)";										
-        "APP_ENCRYPTION_KEY"          = "$($getEncryptionKey.encryptionKey)";
-        "APP_NUGET_ACTIVITIES_KEY"    = "$($getEncryptionKey.nugetKey)";
-        "APP_NUGET_PACKAGES_KEY"      = "$($getEncryptionKey.nugetKey)";
-        "APP_MACHINE_DECRYPTION_KEY"  = "$($getEncryptionKey.DecryptionKey)";
-        "APP_MACHINE_VALIDATION_KEY"  = "$($getEncryptionKey.Validationkey)";
-        "TELEMETRY_ENABLED"           = "0";
+      "ORCHESTRATORFOLDER"          = "`"$($orchestratorFolder)`"";
+      "DB_SERVER_NAME"              = "$($databaseServerName)";
+      "DB_DATABASE_NAME"            = "$($databaseName)";
+      "HOSTADMIN_PASSWORD"          = "$($orchestratorAdminPassword)";
+      "DEFAULTTENANTADMIN_PASSWORD" = "$($orchestratorAdminPassword)";										
+      "APP_ENCRYPTION_KEY"          = "$($getEncryptionKey.encryptionKey)";
+      "APP_NUGET_ACTIVITIES_KEY"    = "$($getEncryptionKey.nugetKey)";
+      "APP_NUGET_PACKAGES_KEY"      = "$($getEncryptionKey.nugetKey)";
+      "APP_MACHINE_DECRYPTION_KEY"  = "$($getEncryptionKey.DecryptionKey)";
+      "APP_MACHINE_VALIDATION_KEY"  = "$($getEncryptionKey.Validationkey)";
+      "TELEMETRY_ENABLED"           = "0";
     }
 
     if ($appPoolIdentityType -eq "USER") {
 
-        $msiProperties += @{
-            "APPPOOL_IDENTITY_TYPE" = "USER";
-            "APPPOOL_USER_NAME"     = "$($appPoolIdentityUser)";
-            "APPPOOL_PASSWORD"      = "$($appPoolIdentityUserPassword)";
-        }
+      $msiProperties += @{
+          "APPPOOL_IDENTITY_TYPE" = "USER";
+          "APPPOOL_USER_NAME"     = "$($appPoolIdentityUser)";
+          "APPPOOL_PASSWORD"      = "$($appPoolIdentityUserPassword)";
+      }
     }
     else {
-        $msiProperties += @{"APPPOOL_IDENTITY_TYPE" = "APPPOOLIDENTITY"; }
+      $msiProperties += @{"APPPOOL_IDENTITY_TYPE" = "APPPOOLIDENTITY"; }
     }
 
     if ($databaseAuthenticationMode -eq "SQL") {
@@ -286,15 +376,54 @@ function Main {
     else {
         $msiProperties += @{"DB_AUTHENTICATION_MODE" = "WINDOWS"; }
     }
+    
+    #adding Feature and properties required for 20.x version
+    if ($orchestratorVersion.StartsWith("2")) {
+
+      $msiFeatures += @("IdentityFeature")
+
+      if ($useSelfSigned) {
+        $msiProperties += @{
+          "CERTIFICATE_SUBJECT"         = "$SelfSignedThumbprint"
+          "IS_CERTIFICATE_SUBJECT"      = "$SelfSignedThumbprint"
+        }
+      }
+      
+      elseif (!$ISCertificateBase64) {
+        $msiProperties += @{
+          "CERTIFICATE_SUBJECT"         = "$userSslthumbprint"
+          "IS_CERTIFICATE_SUBJECT"      = "$isSelfSignedThumbprint"
+        }
+      }  
+      elseif (!$certificateBase64) {
+        $msiProperties += @{
+          "CERTIFICATE_SUBJECT"         = "$sslSelfSignedThumbprint"
+          "IS_CERTIFICATE_SUBJECT"      = "$userIsThumbprint"
+        }
+      }
+      else{
+        $msiProperties += @{
+          "CERTIFICATE_SUBJECT"         = "$userSslthumbprint"
+          "IS_CERTIFICATE_SUBJECT"      = "$userIsThumbprint"
+        }
+      }
+
+      try {
+        
+        Install-DotNetHostingBundle -DotNetHostingBundlePath "$tempDirectory\dotnet-hosting-3.1.3-win.exe"
+        
+      }
+      catch {
+        Write-Error $_.exception.message
+        Log-Error -LogPath $sLogFile -ErrorDesc "$($_.exception.message) installing Dotnet hosting" -ExitGracefully $True
+      }
+
+    }
 
     Install-UiPathOrchestratorEnterprise -msiPath "$($tempDirectory)\UiPathOrchestrator.msi" -logPath "$($sLogPath)\Install-UiPathOrchestrator.log" -msiFeatures $msiFeatures -msiProperties $msiProperties
 
     #Remove the default Binding
     Remove-WebBinding -Name "Default Web Site" -BindingInformation "*:80:"
-
-    #add public DNS to bindings
-    New-WebBinding -Name "UiPath*" -IPAddress "*" -Protocol http
-    New-WebBinding -Name "UiPath*" -IPAddress "*" -Protocol https
 
     #stopping default website
     Set-ItemProperty "IIS:\Sites\Default Web Site" serverAutoStart False
@@ -431,7 +560,6 @@ function Main {
         }
 
     }
-
 }
 
 <#
@@ -1040,6 +1168,47 @@ function Download-File {
     Catch {
         Log-Error -LogPath $sLogFile -ErrorDesc "The following error occurred: $_" -ExitGracefully $True
     }
+}
+
+<#
+  .SYNOPSIS
+    Creates pfx certificate file
+
+  .DESCRIPTION
+    Converts the base64 string representation of a pfx certificate back to a pfx that can be imported on the local machine.
+
+  .PARAMETER base64String
+    Mandatory. Base64 String.
+
+  .PARAMETER pfxCertificateName
+    Mandatory. Name of certificate file to be created. Example: MyCertificate.pfx
+
+  .INPUTS
+    Parameters above
+
+  .OUTPUTS
+    Certificate file created
+ #>
+function ConvertBase64StringToPfxCertificate {
+  param (
+    [Parameter(Mandatory = $true)]
+    [string] $base64String,
+
+    [Parameter(Mandatory = $true)]
+    [string] $pfxCertificateName
+  )
+
+  try {
+
+    $rawByteCert = [System.Convert]::FromBase64String($($base64String))
+
+    [io.file]::WriteAllBytes("$tempDirectory\$pfxCertificateName", $rawByteCert)
+  
+  }
+  catch {
+    Log-Error -LogPath $sLogFile -ErrorDesc "Failed to convert base64 string to PFX file. Reason: $_" -ExitGracefully $True
+  }
+
 }
 
 <#

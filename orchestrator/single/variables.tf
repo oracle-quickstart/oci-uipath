@@ -63,13 +63,26 @@ variable "compartment_ocid" {
 #  Orchestrator Info   #
 ############################
 
-variable "orchestratorVersion" {
+variable "orchestratorVersion" {}
+
+variable "orchestratorAdminPassword" {}
+
+variable "passphrase" {}
+
+variable "certificateBase64" {
+  default = ""
 }
 
-variable "orchestratorAdminPassword" {
+variable "certificatePass" {
+  default = ""
 }
 
-variable "passphrase" {
+variable "ISCertificateBase64" {
+  default = ""
+}
+
+variable "ISCertificatePass" {
+  default = ""
 }
 
 # db variables passed to/used by orchestrator in SQL section

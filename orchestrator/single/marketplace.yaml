@@ -42,6 +42,11 @@ variableGroups:
       - orchestratorVersion
       - orchestratorAdminPassword
       - passphrase
+      - certificateBase64
+      - certificatePass
+      - ISCertificateBase64
+      - ISCertificatePass
+
 
   - title: "Virtual Machine Settings"
     variables:
@@ -140,9 +145,9 @@ variables:
     required: true
     title: The version of Orchestrator to be deployed
     description: Orchestrator version
-    default: "20.4.1"
+    default: "20.4.3"
     enum:
-    - "20.4.1"
+    - "20.4.3"
     - "19.10.19"
 
 
@@ -159,6 +164,32 @@ variables:
     title: Passphrase
     description: Passphrase is used to generate same AppEncryption key, Nuget API keys, Machine Validation and Decryption keys
     pattern: "^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\\d\\W])|(?=.*\\W)(?=.*\\d))|(?=.*\\W)(?=.*[A-Z])(?=.*\\d)).{12,}$"
+
+  certificateBase64:
+    type: string
+    required: false
+    title: SSL certificate (base64)
+    description: Orchestrator's SSL certificate
+    visible: true
+
+  certificatePass:
+    type: string
+    required: false
+    title: SSL certificate password
+    description: The password used to secure your PFX certificate
+
+  ISCertificateBase64:
+    type: string
+    required: false
+    title: Identity Server certificate (base64)
+    description: Certificate used by Identity Server to sign tokens
+    visible: true
+
+  ISCertificatePass:
+    type: string
+    required: false
+    title: Identity Server's certificate password
+    description: The password used to secure your PFX certificate
 
   #Virtual Machine Settings variables
   availability_domain_name:
