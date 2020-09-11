@@ -54,17 +54,21 @@ data "template_file" "uirobot_setup" {
   #count ="${var.instance_count}"
   template = file("./user_data_uirobot_setup.txt")
   vars = {
-    instance_username  = var.instance_username
-    instance_password = var.instance_password
+    instance_username        = var.instance_username
+    instance_password        = var.instance_password
     robot_local_account_role = var.instance_password
-    orchestrator_url = var.orchestrator_url
-    orchestrator_tennant = var.orchestrator_tennant
-    orchestrator_admin = var.orchestrator_admin
-    orchestrator_adminpw = var.orchestrator_adminpw
-    robot_type = var.robot_type
-    robot_version = var.robot_version
-    addRobotToExistingEnvs = var.addRobotToExistingEnvs
-
+    orchestrator_url         = var.orchestrator_url
+    orchestrator_tennant     = var.orchestrator_tennant
+    orchestrator_admin       = var.orchestrator_admin
+    orchestrator_adminpw     = var.orchestrator_adminpw
+    robot_type               = var.robot_type
+    robot_version            = var.robot_version
+    is_orchestrator_certificate_trusted = var.is_orchestrator_certificate_trusted
+    orchCertificateBase64    = var.orchCertificateBase64
+    orchCertificatePass      = var.orchCertificatePass
+    is_orchestrator_dns_resolvable = var.is_orchestrator_dns_resolvable
+    orchestratorIP           = var.orchestratorIP
+    orchestratorHostname     = var.orchestratorHostname
   }
 }
 

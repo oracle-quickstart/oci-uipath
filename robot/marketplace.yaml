@@ -41,12 +41,17 @@ variableGroups:
   - title: "Orchestrator Connection Info"
     variables:
       - orchestrator_url
+      - is_orchestrator_dns_resolvable
+      - orchestratorIP
+      - orchestratorHostname
       - orchestrator_admin
       - orchestrator_adminpw
       - orchestrator_tennant
       - robot_type
       - robot_version
-      - addRobotToExistingEnvs
+      - is_orchestrator_certificate_trusted
+      - orchCertificateBase64
+      - orchCertificatePass
 
   - title: "Virtual Machine Settings"
     variables:
@@ -136,13 +141,42 @@ variables:
     description: Number of Robots to be created in existing Orchestrator.
     minimum: 1
 
-
   #Orchestrator Connection Info variables
   orchestrator_url:
     type: link
     required: true
     title: The URL of an existing and licensed Orchestrator
-    description: Orchestrator URL
+    description: Orchestrator URL. E.g http://orchestrator.com.
+
+  is_orchestrator_dns_resolvable:
+    type: enum
+    title: Is your Orchestrator DNS resolvable by a DNS Server ?
+    description: The FQDN of your Orchestrator needs to be translated to an IP address. If the Robot machine cannot translated the FQDN of your Orchestrator, please select "No". Otherwise select "Yes"
+    required: true
+    default: "Yes"
+    enum:
+      - "Yes"
+      - "No"
+
+  orchestratorIP:
+    type: string
+    required: true
+    title: Orchestrator IP address
+    description: The Orchestrator public IP address. It will be added to your hosts file in order for Robot to be able to connect to it.
+    visible:
+      eq:
+        - is_orchestrator_dns_resolvable
+        - "No"
+  
+  orchestratorHostname:
+    type: string
+    required: true
+    title: Orchestrator hostname
+    description: Orchestrator's hostname. It will be mapped to the Orchestrator IP address in your hosts file in order for Robot to be able to connect to it.
+    visible:
+      eq:
+        - is_orchestrator_dns_resolvable
+        - "No"
 
   orchestrator_admin:
     type: string
@@ -154,7 +188,7 @@ variables:
     type: password
     required: true
     title: Orchestrator admin's password
-    description: The admin's password of an existing and licensed Orchestrator
+    description: The admin's password
 
   orchestrator_tennant:
     type: string
@@ -166,29 +200,56 @@ variables:
   robot_type:
     type: enum
     required: true
+    title: Robot Type
+    description: "Robot Type to be installed. Available types: Development, Attended, Unattended, NonProduction"
     default: "Development"
     enum:
-    - "Attended"
-    - "Unattended"
-    - "Development"
-    - "NonProduction"
+      - "Attended"
+      - "Unattended"
+      - "Development"
+      - "NonProduction"
 
   robot_version:
     type: enum
+    title: UiPath Robot version
+    description: The version of UiPath Robot to be installed.
     required: true
-    default: "19.10.4"
+    default: "20.4.3"
     enum:
-    - "19.10.4"
-    - "19.4.5"
-    - "18.4.7"
+      - "20.4.3"
+      - "19.10.5"
+      - "19.4.6"
+      - "18.4.8"
 
-  addRobotToExistingEnvs:
+  is_orchestrator_certificate_trusted:
     type: enum
+    title: Is the Orchestrator SSL certificate trusted by the Robot machine ?
+    description: In order to connect the Robot to Orchestrator, the SSL certificate used by Orchestrator needs to be in the Trusted Root Store of the Robot machine. If the Orchestrator uses a trusted certificate issued by a Certificate Authority, select "YES". Otherwise select "NO"
     required: true
+    default: "Yes"
     enum:
-      - "No"
       - "Yes"
-    default: "No"
+      - "No"
+
+  orchCertificateBase64:
+    type: string
+    required: true
+    title: SSL certificate (base64)
+    description: Orchestrator's SSL certificate, which will be installed in the Trusted Root store on the Robot machine.
+    visible:
+      eq:
+        - is_orchestrator_certificate_trusted
+        - "No"
+
+  orchCertificatePass:
+    type: password
+    required: false
+    title: SSL certificate password
+    description: The password used to secure your PFX certificate
+    visible:
+      eq:
+        - is_orchestrator_certificate_trusted
+        - "No"
 
   #Virtual Machine Settings variables
   availability_domain_name:
@@ -214,8 +275,8 @@ variables:
     description: Create or use existing Network Stack (VCN and Subnet)
     default: "Create New VCN and Subnet"
     enum:
-    - "Create New VCN and Subnet"
-    - "Use Existing VCN and Subnet"
+      - "Create New VCN and Subnet"
+      - "Use Existing VCN and Subnet"
     required: true
 
   # subnet_type:
@@ -341,8 +402,6 @@ variables:
     default: 0.0.0.0/0
     title: Network Security Groups - Whitelisted IP
     description: "Ingress connection to VM whitelisted from IP (range). Enter 0.0.0.0/0 or <your IP>/32"
-
-
 
 outputGroups:
   - title: "Output"

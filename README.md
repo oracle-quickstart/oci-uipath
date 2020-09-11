@@ -57,7 +57,13 @@ You'll need to enter `yes` when prompted.  Once complete, you'll see something l
 ![](./images/05-terraform_destroy.png)
 
 
-### How to base64 encode the your pfx certificate
+### How to base64 encode your pfx certificate
+If your pfx certificate is already installed on your machine you need to export the certificate with the following information:
+1. Export the private key
+2. Include all certificates in the certification path if possible
+3. Enable certificate privacy
+
+If you already have the pfx certificate stored on your machine, run the commands below to convert it to base64 string.
 
 ```
 $pfx_cert = get-content '$certificate' -Encoding Byte
@@ -65,3 +71,8 @@ $base64_cert = [System.Convert]::ToBase64String($pfx_cert)
 ```
 
 Please provide base64_cert to the deployment !!!
+
+
+#### Important notes
+
+1. Orchestrator URL param does not support IP address. Only FQDN supported. E.g https://orchestrator
