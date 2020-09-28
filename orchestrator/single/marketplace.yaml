@@ -168,8 +168,8 @@ variables:
   certificateBase64:
     type: string
     required: false
-    title: SSL certificate (base64)
-    description: Orchestrator's SSL certificate
+    title: Orchestrator's SSL certificate (base64)
+    description: Apply your own SSL certificate to Orchestrator. If none is provided, the deployment will generate a self-signed certificate.
     visible: true
 
   certificatePass:
@@ -181,8 +181,8 @@ variables:
   ISCertificateBase64:
     type: string
     required: false
-    title: Identity Server certificate (base64)
-    description: Certificate used by Identity Server to sign tokens
+    title: Identity Server's certificate (base64)
+    description: Apply your own certificate to Identy Server. If none is provided, the deployment will generate a self-signed certificate.
     visible: true
 
   ISCertificatePass:
