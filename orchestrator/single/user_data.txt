@@ -3,8 +3,7 @@
     $Password='${instance_password}'
     $machineName =  "$Env:COMPUTERNAME"
     $temp = "C:\scripts"
-    #TODO update link below to point to Oracle github repo
-    $linkToInstallOrchPs1 = "https://raw.githubusercontent.com/tadrian88/scripts/master/SingleInstall-Orchestrator.ps1"
+    $linkToInstallOrchPs1 = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-Orchestrator.ps1"
     $InstallOrchPs1 = "Install-orchestrator.ps1"
     
     # Create or update existing user
@@ -22,7 +21,7 @@
     $User.SetInfo()
     $User.UserFlags = 65536
     $User.SetInfo()
-    Add-LocalGroupMember -Group "Remote Desktop Users" -Member $UserName
+    Add-LocalGroupMember -Group "Administrators" -Member $UserName
     }
 
     New-Item $temp -ItemType directory
