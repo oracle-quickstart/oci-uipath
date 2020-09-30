@@ -11,12 +11,12 @@ variable "mp_listing_id" {
 }
 
 variable "mp_listing_resource_id" {
-  default     = "ocid1.image.oc1.iad.aaaaaaaar32ruyuz57xihpizg6he7ae24ma33iuz523q2l2xainewpkb5dyq"
+  default     = "ocid1.image.oc1..aaaaaaaay3dj4hs6t4w7himf3qukfw5gnm4w2lzp24wct2g2vsoezomuwcya"
   description = "Marketplace - Image OCID"
 }
 
 variable "mp_listing_resource_version" {
-  default = "1.0-031820200437"
+  default = "2.0"
 }
 
 variable "use_marketplace_image" {
