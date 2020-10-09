@@ -624,6 +624,8 @@ function Install-UiPathOrchestratorEnterprise {
 
   Log-Write -LogPath $sLogFile -LineValue "Installing UiPath"
 
+  Check-MSI-mutex
+
   $process = Invoke-MSIExec -msiPath $msiPath -logPath $logPath -features $msiFeatures -properties $msiProperties
 
   Log-Write -LogPath $sLogFile -LineValue "Installing Features $($msiFeatures)"
@@ -677,6 +679,8 @@ function Install-UrlRewrite {
 
   Log-Write -LogPath $sLogFile -LineValue  "Installing IIS URL Rewrite 2.0 Module"
 
+  Check-MSI-mutex
+
   $exitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList $argumentList -Wait -Passthru).ExitCode
 
   if ($exitCode -ne 0 -and $exitCode -ne 1641 -and $exitCode -ne 3010) {
@@ -719,6 +723,8 @@ function Install-DotNetFramework {
   $argumentList = "/q /norestart"
 
   Log-Write -LogPath $sLogFile -LineValue  "Installing .Net Framework 4.7.2"
+
+  Check-MSI-mutex
 
   $exitCode = (Start-Process -FilePath $installer -ArgumentList $argumentList -Verb RunAs -Wait).ExitCode
 
@@ -763,6 +769,8 @@ function Install-DotNetHostingBundle {
 
   Log-Write -LogPath $sLogFile -LineValue  "Installing ASP.NET Core Hosting Bundle"
 
+  Check-MSI-mutex
+  
   $exitCode = (Start-Process -FilePath $installer -ArgumentList $argumentList -Verb RunAs -Wait).ExitCode
 
   if ($exitCode -ne 0) {
@@ -1481,6 +1489,25 @@ function Log-Finish {
   }
 }
 
+function Check-MSI-mutex {
+
+  while($true)
+  {
+    try
+    {
+      $mutex = [System.Threading.Mutex]::OpenExisting('Global\_MSIExecute')
+      $mutex = $null
+      Sleep 10
+      'MSI running...' | Out-Default
+    }
+    catch [System.Threading.WaitHandleCannotBeOpenedException]
+    {
+      'Mutex not found; MSI not running' | Out-Default
+      break
+    }
+  }
+
+}
 
 Log-Start -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion
 Main
