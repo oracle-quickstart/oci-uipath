@@ -35,7 +35,7 @@
       }
       catch [System.Threading.WaitHandleCannotBeOpenedException]
       {
-        # Mutex not found; MSI isn't running
+        'Mutex not found; MSI not running' | Out-Default
         break
       }
     }
