@@ -227,22 +227,7 @@ function Main {
     Log-Error -LogPath $sLogFile -ErrorDesc "$($_.exception.message) installing $feature" -ExitGracefully $True
   }
 
-  while($true)
-  {
-    try
-    {
-      $mutex = [System.Threading.Mutex]::OpenExisting('Global\_MSIExecute')
-      $mutex = $null
-      Sleep 10
-      'MSI running...' | Out-Default
-    }
-    catch [System.Threading.WaitHandleCannotBeOpenedException]
-    {
-      # Mutex not found; MSI isn't running
-      break
-    }
-  }
-  
+
   #install URLrewrite
   Install-UrlRewrite -urlRWpath "$tempDirectory\rewrite_amd64_en-US.msi"
 
