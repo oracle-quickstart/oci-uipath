@@ -3,9 +3,9 @@
     $Password='${instance_password}'
     $machineName =  "$Env:COMPUTERNAME"
     $temp = "C:\scripts"
-    $linkToInstallOrchPs1 = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-Orchestrator.ps1"
+    $linkToInstallOrchPs1 = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/mutex/orchestrator/single/Install-Orchestrator.ps1"
     $InstallOrchPs1 = "Install-orchestrator.ps1"
-    
+
     # Create or update existing user
     if($UserName -eq "opc") {
     $admin = [ADSI]("WinNT://./$UserName, user")
