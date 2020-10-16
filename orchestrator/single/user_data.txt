@@ -3,8 +3,14 @@
     $Password='${instance_password}'
     $machineName =  "$Env:COMPUTERNAME"
     $temp = "C:\scripts"
-    $linkToInstallOrchPs1 = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/mutex/orchestrator/single/Install-Orchestrator.ps1"
+    $linkToInstallOrchPs1 = "https://raw.githubusercontent.com/oracle-quickstart/oci-uipath/master/orchestrator/single/Install-Orchestrator.ps1"
     $InstallOrchPs1 = "Install-orchestrator.ps1"
+
+    # stop agent services to be restarted after config, prevents mutex race
+    'Stopping oca and ocau' | Out-Default
+    net stop oca
+    net stop ocau
+
 
     # Create or update existing user
     if($UserName -eq "opc") {
@@ -47,3 +53,8 @@
     Set-ExecutionPolicy Unrestricted -Scope Process -Force
     Invoke-WebRequest -Uri $linkToInstallOrchPs1 -OutFile "$temp\$InstallOrchPs1"
     & "$temp\$InstallOrchPs1" -OrchestratorVersion "${orchestratorVersion}" -passphrase '${passphrase}' -databaseServerName  "${databaseServerName}"  -databaseName "${databaseName}"  -databaseUserName "${databaseUserName}" -databaseUserPassword '${databaseUserPassword}' -orchestratorAdminPassword '${orchestratorAdminPassword}' -certificatePass '${certificatePass}' -certificateBase64 '${certificateBase64}' -ISCertificatePass '${ISCertificatePass}' -ISCertificateBase64 '${ISCertificateBase64}'
+
+    # restart agent services
+    'Starting oca and ocau' | Out-Default
+    net start oca
+    net start ocau
