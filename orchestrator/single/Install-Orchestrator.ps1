@@ -116,11 +116,11 @@ param(
   [string] $orchestratorLicenseCode,
 
   [Parameter()]
-  [string]
+  [string] 
   $ISCertificateBase64,
 
   [Parameter()]
-  [string]
+  [string] 
   $ISCertificatePass,
 
   [Parameter()]
@@ -128,7 +128,7 @@ param(
   $certificateBase64,
 
   [Parameter()]
-  [string]
+  [string] 
   $certificatePass
 
 )
@@ -148,7 +148,7 @@ $sLogFile = Join-Path -Path $sLogPath -ChildPath $sLogName
 
 function Main {
   #Define TLS for Invoke-WebRequest
-  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12	 
   try {
     Start-Transcript -Path "$sLogPath\Install-UipathOrchestrator-Transcript.ps1.txt" -Append
 
@@ -218,7 +218,7 @@ function Main {
     'ClientForNFS-Infrastructure'
   )
   try {
-
+    
     Install-UiPathOrchestratorFeatures -features $features
 
   }
@@ -226,7 +226,6 @@ function Main {
     Write-Error $_.exception.message
     Log-Error -LogPath $sLogFile -ErrorDesc "$($_.exception.message) installing $feature" -ExitGracefully $True
   }
-
 
   #install URLrewrite
   Install-UrlRewrite -urlRWpath "$tempDirectory\rewrite_amd64_en-US.msi"
@@ -249,13 +248,13 @@ function Main {
       -NotAfter (Get-Date).AddYears(20) `
       -CertStoreLocation "cert:\LocalMachine\My" `
       -KeySpec KeyExchange
-
+    
     $SelfSignedThumbprint = $installCert.Thumbprint
 
     ExportAndImportSelfSignedCertToRootStore -certPass "1234sslcert" -certName "UiPathSSCertificate" -thumbprint $SelfSignedThumbprint
 
   }
-
+    
   elseif (!$certificateBase64) {
 
     $installSslCert = New-SelfSignedCertificate -Subject "CN=$orchestratorHostname" `
@@ -266,7 +265,7 @@ function Main {
       -HashAlgorithm sha256 -KeyLength 2048 `
       -NotAfter (Get-Date).AddYears(20) `
       -CertStoreLocation "cert:\LocalMachine\My" `
-
+    
     $sslSelfSignedThumbprint = $installSslCert.Thumbprint
 
     ExportAndImportSelfSignedCertToRootStore -certPass "1234sslcert" -certName "UiPathSSCertificate" -thumbprint $sslSelfSignedThumbprint
@@ -285,20 +284,20 @@ function Main {
       -NotAfter (Get-Date).AddYears(20) `
       -CertStoreLocation "cert:\LocalMachine\My" `
       -KeySpec KeyExchange
-
+    
     $isSelfSignedThumbprint = $installIsCert.Thumbprint
 
     ExportAndImportSelfSignedCertToRootStore -certPass "1234sslcert" -certName "UiPathISCertificate" -thumbprint $isSelfSignedThumbprint
 
     $userSslthumbprint = ImportUserBase64CertificateToMyStore -certPass $certificatePass -certName "userSslCertificate" -Base64String $certificateBase64
-
+    
   }
   else {
-
+    
     $userSslthumbprint = ImportUserBase64CertificateToMyStore -certPass $certificatePass -certName "userSslCertificate" -Base64String $certificateBase64
 
     $userIsThumbprint = ImportUserBase64CertificateToMyStore -certPass $ISCertificatePass -certName "userIsCertificate" -Base64String $ISCertificateBase64
-
+    
   }
 
   #install Orchestrator Feature no matter the version
@@ -313,7 +312,7 @@ function Main {
     "DB_SERVER_NAME"              = "$($databaseServerName)";
     "DB_DATABASE_NAME"            = "$($databaseName)";
     "HOSTADMIN_PASSWORD"          = "$($orchestratorAdminPassword)";
-    "DEFAULTTENANTADMIN_PASSWORD" = "$($orchestratorAdminPassword)";
+    "DEFAULTTENANTADMIN_PASSWORD" = "$($orchestratorAdminPassword)";										
     "APP_ENCRYPTION_KEY"          = "$($getEncryptionKey.encryptionKey)";
     "APP_NUGET_ACTIVITIES_KEY"    = "$($getEncryptionKey.nugetKey)";
     "APP_NUGET_PACKAGES_KEY"      = "$($getEncryptionKey.nugetKey)";
@@ -344,7 +343,7 @@ function Main {
   else {
     $msiProperties += @{"DB_AUTHENTICATION_MODE" = "WINDOWS"; }
   }
-
+    
   #adding Feature and properties required for 20.x version
   if ($orchestratorVersion.StartsWith("2")) {
 
@@ -356,13 +355,13 @@ function Main {
         "IS_CERTIFICATE_SUBJECT" = "$SelfSignedThumbprint"
       }
     }
-
+      
     elseif (!$ISCertificateBase64) {
       $msiProperties += @{
         "CERTIFICATE_SUBJECT"    = "$userSslthumbprint"
         "IS_CERTIFICATE_SUBJECT" = "$isSelfSignedThumbprint"
       }
-    }
+    }  
     elseif (!$certificateBase64) {
       $msiProperties += @{
         "CERTIFICATE_SUBJECT"    = "$sslSelfSignedThumbprint"
@@ -377,9 +376,9 @@ function Main {
     }
 
     try {
-
+        
       Install-DotNetHostingBundle -DotNetHostingBundlePath "$tempDirectory\dotnet-hosting-3.1.3-win.exe"
-
+        
     }
     catch {
       Write-Error $_.exception.message
@@ -624,8 +623,6 @@ function Install-UiPathOrchestratorEnterprise {
 
   Log-Write -LogPath $sLogFile -LineValue "Installing UiPath"
 
-  Check-MSI-mutex
-
   $process = Invoke-MSIExec -msiPath $msiPath -logPath $logPath -features $msiFeatures -properties $msiProperties
 
   Log-Write -LogPath $sLogFile -LineValue "Installing Features $($msiFeatures)"
@@ -679,8 +676,6 @@ function Install-UrlRewrite {
 
   Log-Write -LogPath $sLogFile -LineValue  "Installing IIS URL Rewrite 2.0 Module"
 
-  Check-MSI-mutex
-
   $exitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList $argumentList -Wait -Passthru).ExitCode
 
   if ($exitCode -ne 0 -and $exitCode -ne 1641 -and $exitCode -ne 3010) {
@@ -723,8 +718,6 @@ function Install-DotNetFramework {
   $argumentList = "/q /norestart"
 
   Log-Write -LogPath $sLogFile -LineValue  "Installing .Net Framework 4.7.2"
-
-  Check-MSI-mutex
 
   $exitCode = (Start-Process -FilePath $installer -ArgumentList $argumentList -Verb RunAs -Wait).ExitCode
 
@@ -769,8 +762,6 @@ function Install-DotNetHostingBundle {
 
   Log-Write -LogPath $sLogFile -LineValue  "Installing ASP.NET Core Hosting Bundle"
 
-  Check-MSI-mutex
-  
   $exitCode = (Start-Process -FilePath $installer -ArgumentList $argumentList -Verb RunAs -Wait).ExitCode
 
   if ($exitCode -ne 0) {
@@ -1179,7 +1170,7 @@ function ConvertBase64StringToPfxCertificate {
     $rawByteCert = [System.Convert]::FromBase64String($($base64String))
 
     [io.file]::WriteAllBytes("$tempDirectory\$pfxCertificateName", $rawByteCert)
-
+  
   }
   catch {
     Log-Error -LogPath $sLogFile -ErrorDesc "Failed to convert base64 string to PFX file. Reason: $_" -ExitGracefully $True
@@ -1265,9 +1256,9 @@ function ImportUserBase64CertificateToMyStore {
 
     $userCert = Import-PfxCertificate -FilePath "$tempDirectory\$certName.pfx" -CertStoreLocation Cert:\LocalMachine\My -Password $userCertificatePass
     $userCertThumbprint = $userCert.Thumbprint
-
+  
   } | Out-Null
-
+  
   Return $userCertThumbprint
 }
 
@@ -1489,25 +1480,6 @@ function Log-Finish {
   }
 }
 
-function Check-MSI-mutex {
-
-  while($true)
-  {
-    try
-    {
-      $mutex = [System.Threading.Mutex]::OpenExisting('Global\_MSIExecute')
-      $mutex = $null
-      Sleep 10
-      'MSI running...' | Out-Default
-    }
-    catch [System.Threading.WaitHandleCannotBeOpenedException]
-    {
-      'Mutex not found; MSI not running' | Out-Default
-      break
-    }
-  }
-
-}
 
 Log-Start -LogPath $sLogPath -LogName $sLogName -ScriptVersion $sScriptVersion
 Main
