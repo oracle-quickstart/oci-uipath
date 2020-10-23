@@ -83,15 +83,23 @@ variable "robot_version" {}
 
 variable "is_orchestrator_certificate_trusted" {}
 
-variable "orchCertificateBase64" {}
+variable "orchCertificateBase64" {
+  default = ""
+}
 
-variable "orchCertificatePass" {}
+variable "orchCertificatePass" {
+  default = ""
+}
 
 variable "is_orchestrator_dns_resolvable" {}
 
-variable "orchestratorIP" {}
+variable "orchestratorIP" {
+  default = ""
+}
 
-variable "orchestratorHostname" {}
+variable "orchestratorHostname" {
+  default = ""
+}
 
 
 ############################
