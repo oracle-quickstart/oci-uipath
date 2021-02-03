@@ -1,5 +1,5 @@
 data "oci_core_images" "ol7" {
-  compartment_id   = "${var.compartment_ocid}"
+  compartment_id   = var.compartment_ocid
   operating_system = "Oracle Linux"
   sort_by          = "TIMECREATED"
   sort_order       = "DESC"
@@ -12,7 +12,7 @@ data "oci_core_images" "ol7" {
   }
 
   # Restrict to CPU images, which follow naming
-  # convention "Oracle-Linux-7.x-YYYY.MM.DD" 
+  # convention "Oracle-Linux-7.x-YYYY.MM.DD"
   # So this will fail in the year 3000
   filter {
     name   = "display_name"
