@@ -51,6 +51,7 @@
     $policylist = Get-ExecutionPolicy -List
     Write-Host $policylist
     Set-ExecutionPolicy Unrestricted -Scope Process -Force
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     Invoke-WebRequest -Uri $linkToInstallOrchPs1 -OutFile "$temp\$InstallOrchPs1"
     & "$temp\$InstallOrchPs1" -OrchestratorVersion "${orchestratorVersion}" -passphrase '${passphrase}' -databaseServerName  "${databaseServerName}"  -databaseName "${databaseName}"  -databaseUserName "${databaseUserName}" -databaseUserPassword '${databaseUserPassword}' -orchestratorAdminPassword '${orchestratorAdminPassword}' -certificatePass '${certificatePass}' -certificateBase64 '${certificateBase64}' -ISCertificatePass '${ISCertificatePass}' -ISCertificateBase64 '${ISCertificateBase64}'
 
