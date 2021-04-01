@@ -30,6 +30,7 @@ variableGroups:
       - region
       - compartment_ocid
       - use_marketplace_image
+      - marketplace_source_images
 
   - title: "Basics"
     variables:
